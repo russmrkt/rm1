@@ -5,6 +5,14 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Tools - Russian Market</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    
+    <!-- ===== FIREBASE SDK ===== -->
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
+    
+    <!-- ===== FIREBASE CONFIG ===== -->
+    <script src="firebase-config.js"></script>
+
     <style>
         /* ===== FLAG SPRITES ===== */
         .flag{display:inline-block;width:32px;height:32px;background:url('https://cdn.jsdelivr.net/npm/flag-sprite@1.0.0/flags.png') no-repeat;background-size:512px 512px}
@@ -503,21 +511,67 @@
 
     <script>
         // =============================================================
-        // 1. CHECK USER
+        // 1. CHECK USER (with Firebase)
         // =============================================================
-        function getUsers() { const users = localStorage.getItem('russian_market_users'); return users ? JSON.parse(users) : []; }
-        function getCurrentUser() { return localStorage.getItem('russian_market_current_user'); }
-        function clearCurrentUser() { localStorage.removeItem('russian_market_current_user'); }
+        let currentUserData = null;
 
-        const currentUser = getCurrentUser();
-        if (!currentUser) { window.location.href = 'index.html'; }
+        // التحقق من وجود مستخدم مسجل دخوله
+        const savedUsername = localStorage.getItem('russian_market_current_user');
+        
+        if (!savedUsername) {
+            window.location.href = 'index.html';
+        }
 
-        const users = getUsers();
-        const user = users.find(u => u.username === currentUser);
-        if (!user) { window.location.href = 'index.html'; }
+        // جلب بيانات المستخدم من Firebase
+        async function loadUserData() {
+            try {
+                const snapshot = await db.collection('users')
+                    .where('username', '==', savedUsername)
+                    .get();
+                
+                let user = null;
+                snapshot.forEach(doc => {
+                    user = { id: doc.id, ...doc.data() };
+                });
 
-        document.getElementById('headerUsernameText').textContent = currentUser;
-        document.getElementById('userBalance').innerHTML = `<i class="fas fa-wallet"></i> $${(user.balance || 0).toFixed(2)}`;
+                if (!user) {
+                    localStorage.removeItem('russian_market_current_user');
+                    window.location.href = 'index.html';
+                    return;
+                }
+
+                currentUserData = user;
+                
+                // تحديث واجهة المستخدم
+                document.getElementById('headerUsernameText').textContent = user.username;
+                document.getElementById('userBalance').innerHTML = `<i class="fas fa-wallet"></i> $${(user.balance || 0).toFixed(2)}`;
+
+                // التحقق من الحظر
+                if (user.isBanned) {
+                    alert('Your account has been banned.');
+                    localStorage.removeItem('russian_market_current_user');
+                    window.location.href = 'index.html';
+                    return;
+                }
+
+            } catch (error) {
+                console.error('Error loading user:', error);
+                // في حالة خطأ، حاول القراءة من localStorage كحل احتياطي
+                const users = JSON.parse(localStorage.getItem('russian_market_users') || '[]');
+                const user = users.find(u => u.username === savedUsername);
+                if (user) {
+                    currentUserData = user;
+                    document.getElementById('headerUsernameText').textContent = user.username;
+                    document.getElementById('userBalance').innerHTML = `<i class="fas fa-wallet"></i> $${(user.balance || 0).toFixed(2)}`;
+                } else {
+                    localStorage.removeItem('russian_market_current_user');
+                    window.location.href = 'index.html';
+                }
+            }
+        }
+
+        // تحميل بيانات المستخدم
+        loadUserData();
 
         // =============================================================
         // 2. LOGOUT & DROPDOWN
@@ -537,7 +591,7 @@
 
         document.getElementById('logoutLink').addEventListener('click', function(e) {
             e.preventDefault();
-            clearCurrentUser();
+            localStorage.removeItem('russian_market_current_user');
             dropdownMenu.classList.remove('show');
             window.location.href = 'index.html';
         });
@@ -676,7 +730,7 @@
             document.getElementById('resultOutput').textContent = '';
         }
 
-        console.log('✅ Tools page (Netscape to JSON Converter) loaded.');
+        console.log('✅ Tools page (Netscape to JSON Converter) loaded with Firebase.');
     </script>
 </body>
 </html>
