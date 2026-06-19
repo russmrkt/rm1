@@ -5,8 +5,15 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Admin Panel - Russian Market</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    
+    <!-- ===== FIREBASE SDK ===== -->
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
+    
+    <!-- ===== FIREBASE CONFIG ===== -->
+    <script src="firebase-config.js"></script>
+
     <style>
-        /* Flags */
         .flag{display:inline-block;width:32px;height:32px;background:url('https://cdn.jsdelivr.net/npm/flag-sprite@1.0.0/flags.png') no-repeat;background-size:512px 512px}
         .flag.flag-us{background-position:-416px -416px}
         .flag.flag-gb{background-position:-288px -128px}
@@ -288,6 +295,27 @@
                             <tbody id="usersTableBody"></tbody>
                         </table>
                     </div>
+                    
+                    <!-- Add User Form -->
+                    <hr style="border-color:#2a333a; margin: 20px 0;">
+                    <h4 style="color:#f0b90b;">➕ Add New User Manually</h4>
+                    <form id="addUserForm" class="admin-form" style="display:grid; grid-template-columns:1fr 1fr; gap:15px;">
+                        <div class="form-group"><label>Username</label><input type="text" id="newUsername" required></div>
+                        <div class="form-group"><label>Password</label><input type="text" id="newPassword" required></div>
+                        <div class="form-group"><label>PIN (4 digits)</label><input type="text" id="newPin" maxlength="4" required></div>
+                        <div class="form-group"><label>Balance ($)</label><input type="number" id="newBalance" value="0" step="0.01"></div>
+                        <div class="form-group" style="grid-column:span 2;">
+                            <label>Activation Mode</label>
+                            <select id="newMode">
+                                <option value="active">Active (Full Access)</option>
+                                <option value="disabled">Disabled (Banner)</option>
+                                <option value="limited">Limited (Blur after 3)</option>
+                                <option value="locked">Locked (Redirect to Deposit)</option>
+                            </select>
+                        </div>
+                        <button type="submit" class="save-btn" style="grid-column:span 2;"><i class="fas fa-user-plus"></i> Add User</button>
+                        <div id="addUserMsg" class="msg"></div>
+                    </form>
                 </div>
 
                 <!-- ===== TAB: CVV ===== -->
@@ -699,15 +727,12 @@ TOR: http://russian76uguxb2w7v4zsv6ayhposdqyihm2mseq4qcvj5atoshnpqad.onion</text
         });
 
         // =============================================================
-        // 3. USER MANAGEMENT
+        // 3. USER MANAGEMENT (Firebase)
         // =============================================================
-        function getUsers() { const users = localStorage.getItem('russian_market_users'); return users ? JSON.parse(users) : []; }
-        function saveUsers(users) { localStorage.setItem('russian_market_users', JSON.stringify(users)); }
-
         let depositTargetIndex = null;
 
-        function bulkAction(action) {
-            let users = getUsers();
+        async function bulkAction(action) {
+            const users = await getUsers();
             if (users.length === 0) { alert('No users.'); return; }
             let confirmMsg = '';
             switch(action) {
@@ -721,201 +746,271 @@ TOR: http://russian76uguxb2w7v4zsv6ayhposdqyihm2mseq4qcvj5atoshnpqad.onion</text
             }
             if (!confirm(confirmMsg)) return;
 
-            users = users.map(user => {
+            for (const user of users) {
+                const updates = {};
                 switch(action) {
-                    case 'activate': user.isBanned = false; user.isActive = true; user.activation_mode = 'active'; break;
-                    case 'ban': user.isBanned = true; break;
-                    case 'unban': user.isBanned = false; break;
-                    case 'mode_disabled': user.activation_mode = 'disabled'; break;
-                    case 'mode_limited': user.activation_mode = 'limited'; break;
-                    case 'mode_locked': user.activation_mode = 'locked'; break;
+                    case 'activate': updates.isBanned = false; updates.isActive = true; updates.activation_mode = 'active'; break;
+                    case 'ban': updates.isBanned = true; break;
+                    case 'unban': updates.isBanned = false; break;
+                    case 'mode_disabled': updates.activation_mode = 'disabled'; updates.isActive = false; break;
+                    case 'mode_limited': updates.activation_mode = 'limited'; updates.isActive = false; break;
+                    case 'mode_locked': updates.activation_mode = 'locked'; updates.isActive = false; break;
                 }
-                return user;
-            });
-
-            saveUsers(users);
+                await updateUser(user.id, updates);
+            }
             loadUsersTable();
             alert('✅ Bulk action applied!');
         }
 
-        function loadUsersTable() {
-            const users = getUsers();
-            const tbody = document.getElementById('usersTableBody');
-            if (users.length === 0) { tbody.innerHTML = `<tr><td colspan="6" style="text-align:center;">No users.</td></tr>`; return; }
-            let html = ''; let totalBalance = 0;
-            users.forEach((user, index) => {
-                const status = user.isBanned ? 'Banned' : 'Active';
-                const statusClass = user.isBanned ? 'banned' : 'active';
-                const balance = user.balance || 0; totalBalance += balance;
-                const mode = user.activation_mode || 'disabled';
-                const modeLabels = { active: '✅ Active', disabled: '🚫 Disabled', limited: '🔍 Limited', locked: '🔒 Locked' };
-                const modeClass = mode === 'active' ? 'active-mode' : '';
-                html += `<tr>
-                    <td><strong>${user.username}</strong></td>
-                    <td>${user.pin || 'N/A'}</td>
-                    <td><span class="balance-amount">$${balance.toFixed(2)}</span></td>
-                    <td><span class="mode-badge ${modeClass}">${modeLabels[mode] || 'Disabled'}</span></td>
-                    <td><span class="status-badge ${statusClass}">${status}</span></td>
-                    <td class="actions">
-                        <i class="fas fa-coins deposit-icon" data-index="${index}" title="Add Balance"></i>
-                        <i class="fas fa-user-check activate" data-index="${index}" title="Activate (Full Access)"></i>
-                        <i class="fas fa-times-circle mode-disabled" data-index="${index}" data-mode="disabled" title="Set Disabled"></i>
-                        <i class="fas fa-eye-slash mode-limited" data-index="${index}" data-mode="limited" title="Set Limited"></i>
-                        <i class="fas fa-lock mode-locked" data-index="${index}" data-mode="locked" title="Set Locked"></i>
-                        ${user.isBanned ? `<i class="fas fa-check-circle unban" data-index="${index}" title="Unban"></i>` : `<i class="fas fa-ban ban" data-index="${index}" title="Ban"></i>`}
-                        <i class="fas fa-trash delete" data-index="${index}" title="Delete"></i>
-                    </td>
-                </tr>`;
-            });
-            tbody.innerHTML = html;
-            document.getElementById('totalUsers').textContent = users.length;
-            document.getElementById('totalBanned').textContent = users.filter(u => u.isBanned).length;
-            document.getElementById('totalActive').textContent = users.filter(u => !u.isBanned && u.isActive).length;
-            document.getElementById('totalBalance').textContent = '$' + totalBalance.toFixed(2);
-
-            // Events
-            tbody.querySelectorAll('.deposit-icon').forEach(btn => {
-                btn.addEventListener('click', function() {
-                    const idx = parseInt(this.dataset.index); depositTargetIndex = idx;
-                    const users = getUsers(); const user = users[idx];
-                    document.getElementById('depositUserInfo').innerHTML = `Adding balance to: <strong>${user.username}</strong>`;
-                    document.getElementById('depositAmount').value = ''; document.getElementById('depositError').style.display = 'none';
-                    document.getElementById('depositOverlay').classList.add('active');
-                    document.getElementById('depositAmount').focus();
+        async function loadUsersTable() {
+            try {
+                const users = await getUsers();
+                const tbody = document.getElementById('usersTableBody');
+                if (users.length === 0) { tbody.innerHTML = `<tr><td colspan="6" style="text-align:center;">No users.</td></tr>`; return; }
+                let html = ''; let totalBalance = 0;
+                users.forEach((user, index) => {
+                    const status = user.isBanned ? 'Banned' : 'Active';
+                    const statusClass = user.isBanned ? 'banned' : 'active';
+                    const balance = user.balance || 0; totalBalance += balance;
+                    const mode = user.activation_mode || 'disabled';
+                    const modeLabels = { active: '✅ Active', disabled: '🚫 Disabled', limited: '🔍 Limited', locked: '🔒 Locked' };
+                    const modeClass = mode === 'active' ? 'active-mode' : '';
+                    html += `<tr>
+                        <td><strong>${user.username}</strong></td>
+                        <td>${user.pin || 'N/A'}</td>
+                        <td><span class="balance-amount">$${balance.toFixed(2)}</span></td>
+                        <td><span class="mode-badge ${modeClass}">${modeLabels[mode] || 'Disabled'}</span></td>
+                        <td><span class="status-badge ${statusClass}">${status}</span></td>
+                        <td class="actions">
+                            <i class="fas fa-coins deposit-icon" data-userid="${user.id}" title="Add Balance"></i>
+                            <i class="fas fa-user-check activate" data-userid="${user.id}" title="Activate (Full Access)"></i>
+                            <i class="fas fa-times-circle mode-disabled" data-userid="${user.id}" data-mode="disabled" title="Set Disabled"></i>
+                            <i class="fas fa-eye-slash mode-limited" data-userid="${user.id}" data-mode="limited" title="Set Limited"></i>
+                            <i class="fas fa-lock mode-locked" data-userid="${user.id}" data-mode="locked" title="Set Locked"></i>
+                            ${user.isBanned ? `<i class="fas fa-check-circle unban" data-userid="${user.id}" title="Unban"></i>` : `<i class="fas fa-ban ban" data-userid="${user.id}" title="Ban"></i>`}
+                            <i class="fas fa-trash delete" data-userid="${user.id}" title="Delete"></i>
+                        </td>
+                    </tr>`;
                 });
-            });
+                tbody.innerHTML = html;
+                document.getElementById('totalUsers').textContent = users.length;
+                document.getElementById('totalBanned').textContent = users.filter(u => u.isBanned).length;
+                document.getElementById('totalActive').textContent = users.filter(u => !u.isBanned && u.isActive).length;
+                document.getElementById('totalBalance').textContent = '$' + totalBalance.toFixed(2);
 
-            // Activate Single User
-            tbody.querySelectorAll('.activate').forEach(btn => {
-                btn.addEventListener('click', function() {
-                    const idx = parseInt(this.dataset.index);
-                    const users = getUsers();
-                    if (confirm(`Activate "${users[idx].username}" with full access (no payment)?`)) {
-                        users[idx].isActive = true;
-                        users[idx].isBanned = false;
-                        users[idx].activation_mode = 'active';
-                        saveUsers(users);
+                // Events
+                // Deposit
+                tbody.querySelectorAll('.deposit-icon').forEach(btn => {
+                    btn.addEventListener('click', function() {
+                        const userId = this.dataset.userid;
+                        depositTargetIndex = userId;
+                        const username = this.closest('tr').querySelector('td:first-child strong').textContent;
+                        document.getElementById('depositUserInfo').innerHTML = `Adding balance to: <strong>${username}</strong>`;
+                        document.getElementById('depositAmount').value = ''; document.getElementById('depositError').style.display = 'none';
+                        document.getElementById('depositOverlay').classList.add('active');
+                        document.getElementById('depositAmount').focus();
+                    });
+                });
+
+                // Activate Single User
+                tbody.querySelectorAll('.activate').forEach(btn => {
+                    btn.addEventListener('click', async function() {
+                        const userId = this.dataset.userid;
+                        if (confirm(`Activate this user with full access?`)) {
+                            await updateUser(userId, { isActive: true, isBanned: false, activation_mode: 'active' });
+                            loadUsersTable();
+                        }
+                    });
+                });
+
+                // Mode buttons
+                tbody.querySelectorAll('.mode-disabled, .mode-limited, .mode-locked').forEach(btn => {
+                    btn.addEventListener('click', async function() {
+                        const userId = this.dataset.userid;
+                        const mode = this.dataset.mode;
+                        await updateUser(userId, { activation_mode: mode, isActive: false });
                         loadUsersTable();
-                    }
+                    });
                 });
-            });
 
-            // Mode buttons
-            tbody.querySelectorAll('.mode-disabled, .mode-limited, .mode-locked').forEach(btn => {
-                btn.addEventListener('click', function() {
-                    const idx = parseInt(this.dataset.index);
-                    const mode = this.dataset.mode;
-                    const users = getUsers();
-                    users[idx].activation_mode = mode;
-                    if (mode !== 'active') users[idx].isActive = false;
-                    saveUsers(users);
-                    loadUsersTable();
+                // Ban / Unban / Delete
+                tbody.querySelectorAll('.ban').forEach(btn => {
+                    btn.addEventListener('click', async function() {
+                        const userId = this.dataset.userid;
+                        await updateUser(userId, { isBanned: true });
+                        loadUsersTable();
+                    });
                 });
-            });
+                tbody.querySelectorAll('.unban').forEach(btn => {
+                    btn.addEventListener('click', async function() {
+                        const userId = this.dataset.userid;
+                        await updateUser(userId, { isBanned: false });
+                        loadUsersTable();
+                    });
+                });
+                tbody.querySelectorAll('.delete').forEach(btn => {
+                    btn.addEventListener('click', async function() {
+                        const userId = this.dataset.userid;
+                        if (confirm('Delete this user permanently?')) {
+                            await deleteUser(userId);
+                            loadUsersTable();
+                        }
+                    });
+                });
 
-            // Ban / Unban / Delete
-            tbody.querySelectorAll('.ban').forEach(btn => { btn.addEventListener('click', function() { const idx = parseInt(this.dataset.index); const users = getUsers(); users[idx].isBanned = true; saveUsers(users); loadUsersTable(); }); });
-            tbody.querySelectorAll('.unban').forEach(btn => { btn.addEventListener('click', function() { const idx = parseInt(this.dataset.index); const users = getUsers(); users[idx].isBanned = false; saveUsers(users); loadUsersTable(); }); });
-            tbody.querySelectorAll('.delete').forEach(btn => { btn.addEventListener('click', function() { const idx = parseInt(this.dataset.index); const users = getUsers(); if (confirm(`Delete "${users[idx].username}"?`)) { users.splice(idx, 1); saveUsers(users); loadUsersTable(); } }); });
+            } catch (error) {
+                console.error('Error loading users:', error);
+            }
         }
 
         // Deposit logic
-        document.getElementById('depositConfirmBtn').addEventListener('click', function() {
+        document.getElementById('depositConfirmBtn').addEventListener('click', async function() {
             const amount = parseFloat(document.getElementById('depositAmount').value);
             const error = document.getElementById('depositError');
             if (isNaN(amount) || amount <= 0) { error.textContent = '❌ Please enter a valid amount.'; error.style.display = 'block'; return; }
-            if (depositTargetIndex === null) { error.textContent = '❌ No user selected.'; error.style.display = 'block'; return; }
-            const users = getUsers();
-            if (!users[depositTargetIndex]) { error.textContent = '❌ User not found.'; error.style.display = 'block'; return; }
-            users[depositTargetIndex].balance = (users[depositTargetIndex].balance || 0) + amount;
-            if (users[depositTargetIndex].balance >= 50 && !users[depositTargetIndex].isActive) {
-                users[depositTargetIndex].isActive = true;
-                users[depositTargetIndex].activation_mode = 'active';
+            if (!depositTargetIndex) { error.textContent = '❌ No user selected.'; error.style.display = 'block'; return; }
+            try {
+                const user = await getDocById(USERS_COLLECTION, depositTargetIndex);
+                if (!user) { error.textContent = '❌ User not found.'; error.style.display = 'block'; return; }
+                const newBalance = (user.balance || 0) + amount;
+                const updates = { balance: newBalance };
+                if (newBalance >= 50 && !user.isActive) {
+                    updates.isActive = true;
+                    updates.activation_mode = 'active';
+                }
+                await updateUser(depositTargetIndex, updates);
+                document.getElementById('depositOverlay').classList.remove('active');
+                depositTargetIndex = null;
+                loadUsersTable();
+            } catch (err) {
+                error.textContent = '❌ Error: ' + err.message;
+                error.style.display = 'block';
             }
-            saveUsers(users);
-            document.getElementById('depositOverlay').classList.remove('active');
-            depositTargetIndex = null;
-            loadUsersTable();
         });
         document.getElementById('depositCancelBtn').addEventListener('click', function() { document.getElementById('depositOverlay').classList.remove('active'); depositTargetIndex = null; });
         document.getElementById('depositOverlay').addEventListener('click', function(e) { if (e.target === this) { this.classList.remove('active'); depositTargetIndex = null; } });
 
-        // =============================================================
-        // 4. CVV MANAGEMENT
-        // =============================================================
-        function getCvvData() { const data = localStorage.getItem('russian_market_cvv_data'); return data ? JSON.parse(data) : []; }
-        function saveCvvData(data) { localStorage.setItem('russian_market_cvv_data', JSON.stringify(data)); }
+        // Add User Form
+        document.getElementById('addUserForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            const username = document.getElementById('newUsername').value.trim();
+            const password = document.getElementById('newPassword').value.trim();
+            const pin = document.getElementById('newPin').value.trim();
+            const balance = parseFloat(document.getElementById('newBalance').value) || 0;
+            const mode = document.getElementById('newMode').value;
+            const msg = document.getElementById('addUserMsg');
 
-        function loadCvvManageTable() {
-            const data = getCvvData();
-            const tbody = document.getElementById('cvvManageTableBody');
-            if (data.length === 0) { tbody.innerHTML = `<tr><td colspan="7" style="text-align:center;">No CVV entries.</td></tr>`; return; }
-            let html = '';
-            data.forEach((item, index) => {
-                const isSold = item.isSold || false;
-                html += `<tr>
-                    <td><span class="type-logo ${(item.type || 'mastercard').toLowerCase()}">${(item.type || 'MASTERCARD').toUpperCase()}</span></td>
-                    <td>${item.bin || '------'}</td>
-                    <td>${item.bank || '-'}</td>
-                    <td>${item.class || '-'}</td>
-                    <td style="color:#f0b90b;">$${(item.price || 0).toFixed(2)}</td>
-                    <td>${isSold ? '<span class="sold-badge">SOLD</span>' : '<span class="status-badge active">Available</span>'}</td>
-                    <td class="actions">
-                        <i class="fas fa-edit edit" data-index="${index}" title="Edit"></i>
-                        <i class="fas fa-trash delete" data-index="${index}" title="Delete"></i>
-                    </td>
-                </tr>`;
-            });
-            tbody.innerHTML = html;
+            if (!username || !password || pin.length !== 4) {
+                msg.className = 'msg error';
+                msg.textContent = '❌ Please fill all fields correctly (PIN must be 4 digits).';
+                msg.style.display = 'block';
+                return;
+            }
 
-            tbody.querySelectorAll('.edit').forEach(btn => {
-                btn.addEventListener('click', function() {
-                    const idx = parseInt(this.dataset.index);
-                    const data = getCvvData();
-                    const item = data[idx];
-                    document.getElementById('cvvEditId').value = idx;
-                    document.getElementById('cvvType').value = item.type || 'MASTERCARD';
-                    document.getElementById('cvvBin').value = item.bin || '';
-                    document.getElementById('cvvBank').value = item.bank || '';
-                    document.getElementById('cvvClass').value = item.class || '';
-                    document.getElementById('cvvLevel').value = item.level || '';
-                    document.getElementById('cvvExpiry').value = item.expiry || '';
-                    document.getElementById('cvvCountry').value = item.country || 'US';
-                    document.getElementById('cvvState').value = item.state || '';
-                    document.getElementById('cvvZip').value = item.zip || '';
-                    document.getElementById('cvvDatabase').value = item.database || '';
-                    document.getElementById('cvvSnn').value = item.snn || '';
-                    document.getElementById('cvvDob').value = item.dob || '';
-                    document.getElementById('cvvVendor').value = item.vendor || '';
-                    document.getElementById('cvvPrice').value = item.price || '';
-                    document.getElementById('cvvPremium').checked = item.isPremium || false;
-                    document.getElementById('cvvSaveMsg').className = 'msg';
-                    document.getElementById('cvvSaveMsg').textContent = '';
-                    document.getElementById('cvvSaveMsg').style.display = 'none';
-                    window.scrollTo({ top: 0, behavior: 'smooth' });
+            try {
+                const existing = await getUserByUsername(username);
+                if (existing) {
+                    msg.className = 'msg error';
+                    msg.textContent = '❌ Username already exists.';
+                    msg.style.display = 'block';
+                    return;
+                }
+                await addUser({
+                    username,
+                    password,
+                    pin,
+                    balance,
+                    isBanned: false,
+                    isActive: mode === 'active',
+                    activation_mode: mode
                 });
-            });
+                msg.className = 'msg success';
+                msg.textContent = '✅ User added successfully!';
+                msg.style.display = 'block';
+                document.getElementById('addUserForm').reset();
+                document.getElementById('newMode').value = 'active';
+                loadUsersTable();
+                setTimeout(() => { msg.style.display = 'none'; }, 3000);
+            } catch (err) {
+                msg.className = 'msg error';
+                msg.textContent = '❌ Error: ' + err.message;
+                msg.style.display = 'block';
+            }
+        });
 
-            tbody.querySelectorAll('.delete').forEach(btn => {
-                btn.addEventListener('click', function() {
-                    const idx = parseInt(this.dataset.index);
-                    if (confirm('Delete this CVV entry?')) {
-                        const data = getCvvData();
-                        data.splice(idx, 1);
-                        saveCvvData(data);
-                        loadCvvManageTable();
-                    }
+        // =============================================================
+        // 4. CVV MANAGEMENT (Firebase)
+        // =============================================================
+        async function loadCvvManageTable() {
+            try {
+                const data = await getCvvData();
+                const tbody = document.getElementById('cvvManageTableBody');
+                if (data.length === 0) { tbody.innerHTML = `<tr><td colspan="7" style="text-align:center;">No CVV entries.</td></tr>`; return; }
+                let html = '';
+                data.forEach((item, index) => {
+                    const isSold = item.isSold || false;
+                    html += `<tr>
+                        <td><span class="type-logo ${(item.type || 'mastercard').toLowerCase()}">${(item.type || 'MASTERCARD').toUpperCase()}</span></td>
+                        <td>${item.bin || '------'}</td>
+                        <td>${item.bank || '-'}</td>
+                        <td>${item.class || '-'}</td>
+                        <td style="color:#f0b90b;">$${(item.price || 0).toFixed(2)}</td>
+                        <td>${isSold ? '<span class="sold-badge">SOLD</span>' : '<span class="status-badge active">Available</span>'}</td>
+                        <td class="actions">
+                            <i class="fas fa-edit edit" data-id="${item.id}" title="Edit"></i>
+                            <i class="fas fa-trash delete" data-id="${item.id}" title="Delete"></i>
+                        </td>
+                    </tr>`;
                 });
-            });
+                tbody.innerHTML = html;
+
+                tbody.querySelectorAll('.edit').forEach(btn => {
+                    btn.addEventListener('click', async function() {
+                        const id = this.dataset.id;
+                        const item = await getDocById(CVV_COLLECTION, id);
+                        if (!item) return;
+                        document.getElementById('cvvEditId').value = id;
+                        document.getElementById('cvvType').value = item.type || 'MASTERCARD';
+                        document.getElementById('cvvBin').value = item.bin || '';
+                        document.getElementById('cvvBank').value = item.bank || '';
+                        document.getElementById('cvvClass').value = item.class || '';
+                        document.getElementById('cvvLevel').value = item.level || '';
+                        document.getElementById('cvvExpiry').value = item.expiry || '';
+                        document.getElementById('cvvCountry').value = item.country || 'US';
+                        document.getElementById('cvvState').value = item.state || '';
+                        document.getElementById('cvvZip').value = item.zip || '';
+                        document.getElementById('cvvDatabase').value = item.database || '';
+                        document.getElementById('cvvSnn').value = item.snn || '';
+                        document.getElementById('cvvDob').value = item.dob || '';
+                        document.getElementById('cvvVendor').value = item.vendor || '';
+                        document.getElementById('cvvPrice').value = item.price || '';
+                        document.getElementById('cvvPremium').checked = item.isPremium || false;
+                        document.getElementById('cvvSaveMsg').className = 'msg';
+                        document.getElementById('cvvSaveMsg').textContent = '';
+                        document.getElementById('cvvSaveMsg').style.display = 'none';
+                        window.scrollTo({ top: 0, behavior: 'smooth' });
+                    });
+                });
+
+                tbody.querySelectorAll('.delete').forEach(btn => {
+                    btn.addEventListener('click', async function() {
+                        const id = this.dataset.id;
+                        if (confirm('Delete this CVV entry?')) {
+                            await deleteCvvItem(id);
+                            loadCvvManageTable();
+                        }
+                    });
+                });
+            } catch (error) {
+                console.error('Error loading CVV:', error);
+            }
         }
 
-        document.getElementById('cvvForm').addEventListener('submit', function(e) {
+        document.getElementById('cvvForm').addEventListener('submit', async function(e) {
             e.preventDefault();
             const editId = document.getElementById('cvvEditId').value;
-            const data = getCvvData();
             const msg = document.getElementById('cvvSaveMsg');
             const newItem = {
-                id: editId ? data[editId]?.id || Date.now().toString() : Date.now().toString(),
                 type: document.getElementById('cvvType').value,
                 bin: document.getElementById('cvvBin').value.trim() || '------',
                 bank: document.getElementById('cvvBank').value.trim(),
@@ -933,17 +1028,27 @@ TOR: http://russian76uguxb2w7v4zsv6ayhposdqyihm2mseq4qcvj5atoshnpqad.onion</text
                 isPremium: document.getElementById('cvvPremium').checked,
                 isSold: false
             };
-            if (editId !== '') { const idx = parseInt(editId); data[idx] = { ...data[idx], ...newItem }; } else { data.push(newItem); }
-            saveCvvData(data);
-            msg.className = 'msg success';
-            msg.textContent = '✅ CVV saved successfully!';
-            msg.style.display = 'block';
-            document.getElementById('cvvEditId').value = '';
-            document.getElementById('cvvForm').reset();
-            document.getElementById('cvvType').value = 'MASTERCARD';
-            document.getElementById('cvvCountry').value = 'US';
-            loadCvvManageTable();
-            setTimeout(() => { msg.style.display = 'none'; }, 3000);
+
+            try {
+                if (editId) {
+                    await updateCvvItem(editId, newItem);
+                } else {
+                    await addCvvItem(newItem);
+                }
+                msg.className = 'msg success';
+                msg.textContent = '✅ CVV saved successfully!';
+                msg.style.display = 'block';
+                document.getElementById('cvvEditId').value = '';
+                document.getElementById('cvvForm').reset();
+                document.getElementById('cvvType').value = 'MASTERCARD';
+                document.getElementById('cvvCountry').value = 'US';
+                loadCvvManageTable();
+                setTimeout(() => { msg.style.display = 'none'; }, 3000);
+            } catch (err) {
+                msg.className = 'msg error';
+                msg.textContent = '❌ Error: ' + err.message;
+                msg.style.display = 'block';
+            }
         });
 
         function cancelCvvEdit() {
@@ -957,79 +1062,76 @@ TOR: http://russian76uguxb2w7v4zsv6ayhposdqyihm2mseq4qcvj5atoshnpqad.onion</text
         }
 
         // =============================================================
-        // 5. LOGS MANAGEMENT
+        // 5. LOGS MANAGEMENT (Firebase)
         // =============================================================
-        function getLogsData() { const data = localStorage.getItem('russian_market_logs_data'); return data ? JSON.parse(data) : []; }
-        function saveLogsData(data) { localStorage.setItem('russian_market_logs_data', JSON.stringify(data)); }
-
-        function loadLogsManageTable() {
-            const data = getLogsData();
-            const tbody = document.getElementById('logsManageTableBody');
-            if (data.length === 0) { tbody.innerHTML = `<tr><td colspan="6" style="text-align:center;">No Logs entries.</td></tr>`; return; }
-            let html = '';
-            data.forEach((item, index) => {
-                const isSold = item.isSold || false;
-                html += `<tr>
-                    <td>${item.stealer || '-'}</td>
-                    <td>${item.system || '-'}</td>
-                    <td>${item.country || '-'}</td>
-                    <td style="color:#f0b90b;">$${(item.price || 0).toFixed(2)}</td>
-                    <td>${isSold ? '<span class="sold-badge">SOLD</span>' : '<span class="status-badge active">Available</span>'}</td>
-                    <td class="actions">
-                        <i class="fas fa-edit edit" data-index="${index}" title="Edit"></i>
-                        <i class="fas fa-trash delete" data-index="${index}" title="Delete"></i>
-                    </td>
-                </tr>`;
-            });
-            tbody.innerHTML = html;
-
-            tbody.querySelectorAll('.edit').forEach(btn => {
-                btn.addEventListener('click', function() {
-                    const idx = parseInt(this.dataset.index);
-                    const data = getLogsData();
-                    const item = data[idx];
-                    document.getElementById('logsEditId').value = idx;
-                    document.getElementById('logsStealer').value = item.stealer || 'LUMMA';
-                    document.getElementById('logsSystem').value = item.system || 'Windows 10 Pro';
-                    document.getElementById('logsCountry').value = item.country || 'US';
-                    document.getElementById('logsOutlook').value = item.outlook || 'YES';
-                    document.getElementById('logsState').value = item.state || '';
-                    document.getElementById('logsCity').value = item.city || '';
-                    document.getElementById('logsZip').value = item.zip || '';
-                    document.getElementById('logsIsp').value = item.isp || '';
-                    document.getElementById('logsEmail').value = item.email || '';
-                    document.getElementById('logsLink').value = item.link || '';
-                    document.getElementById('logsInfo').value = item.info || '';
-                    document.getElementById('logsDate').value = item.date || '';
-                    document.getElementById('logsSize').value = item.size || '';
-                    document.getElementById('logsPrice').value = item.price || '';
-                    document.getElementById('logsSaveMsg').className = 'msg';
-                    document.getElementById('logsSaveMsg').textContent = '';
-                    document.getElementById('logsSaveMsg').style.display = 'none';
-                    window.scrollTo({ top: 0, behavior: 'smooth' });
+        async function loadLogsManageTable() {
+            try {
+                const data = await getLogsData();
+                const tbody = document.getElementById('logsManageTableBody');
+                if (data.length === 0) { tbody.innerHTML = `<tr><td colspan="6" style="text-align:center;">No Logs entries.</td></tr>`; return; }
+                let html = '';
+                data.forEach((item, index) => {
+                    const isSold = item.isSold || false;
+                    html += `<tr>
+                        <td>${item.stealer || '-'}</td>
+                        <td>${item.system || '-'}</td>
+                        <td>${item.country || '-'}</td>
+                        <td style="color:#f0b90b;">$${(item.price || 0).toFixed(2)}</td>
+                        <td>${isSold ? '<span class="sold-badge">SOLD</span>' : '<span class="status-badge active">Available</span>'}</td>
+                        <td class="actions">
+                            <i class="fas fa-edit edit" data-id="${item.id}" title="Edit"></i>
+                            <i class="fas fa-trash delete" data-id="${item.id}" title="Delete"></i>
+                        </td>
+                    </tr>`;
                 });
-            });
+                tbody.innerHTML = html;
 
-            tbody.querySelectorAll('.delete').forEach(btn => {
-                btn.addEventListener('click', function() {
-                    const idx = parseInt(this.dataset.index);
-                    if (confirm('Delete this Log entry?')) {
-                        const data = getLogsData();
-                        data.splice(idx, 1);
-                        saveLogsData(data);
-                        loadLogsManageTable();
-                    }
+                tbody.querySelectorAll('.edit').forEach(btn => {
+                    btn.addEventListener('click', async function() {
+                        const id = this.dataset.id;
+                        const item = await getDocById(LOGS_COLLECTION, id);
+                        if (!item) return;
+                        document.getElementById('logsEditId').value = id;
+                        document.getElementById('logsStealer').value = item.stealer || 'LUMMA';
+                        document.getElementById('logsSystem').value = item.system || 'Windows 10 Pro';
+                        document.getElementById('logsCountry').value = item.country || 'US';
+                        document.getElementById('logsOutlook').value = item.outlook || 'YES';
+                        document.getElementById('logsState').value = item.state || '';
+                        document.getElementById('logsCity').value = item.city || '';
+                        document.getElementById('logsZip').value = item.zip || '';
+                        document.getElementById('logsIsp').value = item.isp || '';
+                        document.getElementById('logsEmail').value = item.email || '';
+                        document.getElementById('logsLink').value = item.link || '';
+                        document.getElementById('logsInfo').value = item.info || '';
+                        document.getElementById('logsDate').value = item.date || '';
+                        document.getElementById('logsSize').value = item.size || '';
+                        document.getElementById('logsPrice').value = item.price || '';
+                        document.getElementById('logsSaveMsg').className = 'msg';
+                        document.getElementById('logsSaveMsg').textContent = '';
+                        document.getElementById('logsSaveMsg').style.display = 'none';
+                        window.scrollTo({ top: 0, behavior: 'smooth' });
+                    });
                 });
-            });
+
+                tbody.querySelectorAll('.delete').forEach(btn => {
+                    btn.addEventListener('click', async function() {
+                        const id = this.dataset.id;
+                        if (confirm('Delete this Log entry?')) {
+                            await deleteLogItem(id);
+                            loadLogsManageTable();
+                        }
+                    });
+                });
+            } catch (error) {
+                console.error('Error loading Logs:', error);
+            }
         }
 
-        document.getElementById('logsForm').addEventListener('submit', function(e) {
+        document.getElementById('logsForm').addEventListener('submit', async function(e) {
             e.preventDefault();
             const editId = document.getElementById('logsEditId').value;
-            const data = getLogsData();
             const msg = document.getElementById('logsSaveMsg');
             const newItem = {
-                id: editId ? data[editId]?.id || Date.now().toString() : Date.now().toString(),
                 stealer: document.getElementById('logsStealer').value,
                 system: document.getElementById('logsSystem').value,
                 country: document.getElementById('logsCountry').value,
@@ -1046,19 +1148,29 @@ TOR: http://russian76uguxb2w7v4zsv6ayhposdqyihm2mseq4qcvj5atoshnpqad.onion</text
                 price: parseFloat(document.getElementById('logsPrice').value) || 0,
                 isSold: false
             };
-            if (editId !== '') { const idx = parseInt(editId); data[idx] = { ...data[idx], ...newItem }; } else { data.push(newItem); }
-            saveLogsData(data);
-            msg.className = 'msg success';
-            msg.textContent = '✅ Log saved successfully!';
-            msg.style.display = 'block';
-            document.getElementById('logsEditId').value = '';
-            document.getElementById('logsForm').reset();
-            document.getElementById('logsStealer').value = 'LUMMA';
-            document.getElementById('logsSystem').value = 'Windows 10 Pro';
-            document.getElementById('logsCountry').value = 'US';
-            document.getElementById('logsOutlook').value = 'YES';
-            loadLogsManageTable();
-            setTimeout(() => { msg.style.display = 'none'; }, 3000);
+
+            try {
+                if (editId) {
+                    await updateLogItem(editId, newItem);
+                } else {
+                    await addLogItem(newItem);
+                }
+                msg.className = 'msg success';
+                msg.textContent = '✅ Log saved successfully!';
+                msg.style.display = 'block';
+                document.getElementById('logsEditId').value = '';
+                document.getElementById('logsForm').reset();
+                document.getElementById('logsStealer').value = 'LUMMA';
+                document.getElementById('logsSystem').value = 'Windows 10 Pro';
+                document.getElementById('logsCountry').value = 'US';
+                document.getElementById('logsOutlook').value = 'YES';
+                loadLogsManageTable();
+                setTimeout(() => { msg.style.display = 'none'; }, 3000);
+            } catch (err) {
+                msg.className = 'msg error';
+                msg.textContent = '❌ Error: ' + err.message;
+                msg.style.display = 'block';
+            }
         });
 
         function cancelLogsEdit() {
@@ -1074,81 +1186,119 @@ TOR: http://russian76uguxb2w7v4zsv6ayhposdqyihm2mseq4qcvj5atoshnpqad.onion</text
         }
 
         // =============================================================
-        // 6. NEWS & PAYMENTS
+        // 6. NEWS MANAGEMENT (Firebase)
         // =============================================================
-        function getNewsData() {
-            const defaultNews = { title1: '📌 Attention', date1: '05 Dec 2024', text1: '⚠️ Please bookmark or save all links to always have access!', links1: 'WEB: https://russianmarket.to/\nWEB: https://rm1.cm/\nWEB: https://rm1.ad/\nWEB: https://russianmarket.com/\n\nTOR: http://russian76uguxb2w7v4zsv6ayhposdqyihm2mseq4qcvj5atoshnpqad.onion', title2: '📱 Telegram', date2: '01 Oct 2021', text2: 'Important notice: Our online store does not have a Telegram channel...' };
-            const stored = localStorage.getItem('russian_market_news');
-            if (stored) { try { return JSON.parse(stored); } catch(e) { return defaultNews; } }
-            return defaultNews;
+        async function loadNewsDataIntoForm() {
+            try {
+                const news = await getNewsData();
+                if (news) {
+                    document.getElementById('newsTitle1').value = news.title1 || '';
+                    document.getElementById('newsDate1').value = news.date1 || '';
+                    document.getElementById('newsText1').value = news.text1 || '';
+                    document.getElementById('newsLinks1').value = news.links1 || '';
+                    document.getElementById('newsTitle2').value = news.title2 || '';
+                    document.getElementById('newsDate2').value = news.date2 || '';
+                    document.getElementById('newsText2').value = news.text2 || '';
+                }
+            } catch (error) {
+                console.error('Error loading news:', error);
+            }
         }
-        function saveNewsData(data) { localStorage.setItem('russian_market_news', JSON.stringify(data)); }
-        function loadNewsDataIntoForm() {
-            const data = getNewsData();
-            document.getElementById('newsTitle1').value = data.title1 || '';
-            document.getElementById('newsDate1').value = data.date1 || '';
-            document.getElementById('newsText1').value = data.text1 || '';
-            document.getElementById('newsLinks1').value = data.links1 || '';
-            document.getElementById('newsTitle2').value = data.title2 || '';
-            document.getElementById('newsDate2').value = data.date2 || '';
-            document.getElementById('newsText2').value = data.text2 || '';
-        }
-        document.getElementById('newsEditForm').addEventListener('submit', function(e) {
+
+        document.getElementById('newsEditForm').addEventListener('submit', async function(e) {
             e.preventDefault();
             const msg = document.getElementById('newsSaveMsg');
-            const data = { title1: document.getElementById('newsTitle1').value.trim(), date1: document.getElementById('newsDate1').value.trim(), text1: document.getElementById('newsText1').value.trim(), links1: document.getElementById('newsLinks1').value.trim(), title2: document.getElementById('newsTitle2').value.trim(), date2: document.getElementById('newsDate2').value.trim(), text2: document.getElementById('newsText2').value.trim() };
-            saveNewsData(data);
-            msg.className = 'msg success';
-            msg.textContent = '✅ News saved!';
-            msg.style.display = 'block';
-            setTimeout(() => { msg.style.display = 'none'; }, 3000);
+            const data = {
+                title1: document.getElementById('newsTitle1').value.trim(),
+                date1: document.getElementById('newsDate1').value.trim(),
+                text1: document.getElementById('newsText1').value.trim(),
+                links1: document.getElementById('newsLinks1').value.trim(),
+                title2: document.getElementById('newsTitle2').value.trim(),
+                date2: document.getElementById('newsDate2').value.trim(),
+                text2: document.getElementById('newsText2').value.trim()
+            };
+            try {
+                await saveNewsData(data);
+                msg.className = 'msg success';
+                msg.textContent = '✅ News saved!';
+                msg.style.display = 'block';
+                setTimeout(() => { msg.style.display = 'none'; }, 3000);
+            } catch (err) {
+                msg.className = 'msg error';
+                msg.textContent = '❌ Error: ' + err.message;
+                msg.style.display = 'block';
+            }
         });
 
-        function getDepositAddresses() {
-            const defaultData = { usdt: { bep20: '', trc20: '', eth: '', erc20: '' }, usdc: { bep20: '', erc20: '', sol: '' }, btc: { btc: '', bep20: '', lightning: '' } };
-            const stored = localStorage.getItem('russian_market_deposit_addresses');
-            if (stored) { try { return JSON.parse(stored); } catch(e) { return defaultData; } }
-            return defaultData;
+        // =============================================================
+        // 7. PAYMENT SETTINGS (Firebase)
+        // =============================================================
+        async function loadPaymentSettings() {
+            try {
+                const data = await getDepositAddresses();
+                if (data) {
+                    document.getElementById('addr_usdt_bep20').value = data.usdt?.bep20 || '';
+                    document.getElementById('addr_usdt_trc20').value = data.usdt?.trc20 || '';
+                    document.getElementById('addr_usdt_eth').value = data.usdt?.eth || '';
+                    document.getElementById('addr_usdt_erc20').value = data.usdt?.erc20 || '';
+                    document.getElementById('addr_usdc_bep20').value = data.usdc?.bep20 || '';
+                    document.getElementById('addr_usdc_erc20').value = data.usdc?.erc20 || '';
+                    document.getElementById('addr_usdc_sol').value = data.usdc?.sol || '';
+                    document.getElementById('addr_btc_btc').value = data.btc?.btc || '';
+                    document.getElementById('addr_btc_bep20').value = data.btc?.bep20 || '';
+                    document.getElementById('addr_btc_lightning').value = data.btc?.lightning || '';
+                }
+            } catch (error) {
+                console.error('Error loading payment settings:', error);
+            }
         }
-        function saveDepositAddresses(data) { localStorage.setItem('russian_market_deposit_addresses', JSON.stringify(data)); }
-        function loadPaymentSettings() {
-            const data = getDepositAddresses();
-            document.getElementById('addr_usdt_bep20').value = data.usdt?.bep20 || '';
-            document.getElementById('addr_usdt_trc20').value = data.usdt?.trc20 || '';
-            document.getElementById('addr_usdt_eth').value = data.usdt?.eth || '';
-            document.getElementById('addr_usdt_erc20').value = data.usdt?.erc20 || '';
-            document.getElementById('addr_usdc_bep20').value = data.usdc?.bep20 || '';
-            document.getElementById('addr_usdc_erc20').value = data.usdc?.erc20 || '';
-            document.getElementById('addr_usdc_sol').value = data.usdc?.sol || '';
-            document.getElementById('addr_btc_btc').value = data.btc?.btc || '';
-            document.getElementById('addr_btc_bep20').value = data.btc?.bep20 || '';
-            document.getElementById('addr_btc_lightning').value = data.btc?.lightning || '';
-        }
-        document.getElementById('paymentSettingsForm').addEventListener('submit', function(e) {
+
+        document.getElementById('paymentSettingsForm').addEventListener('submit', async function(e) {
             e.preventDefault();
             const msg = document.getElementById('paymentSaveMsg');
             const data = {
-                usdt: { bep20: document.getElementById('addr_usdt_bep20').value.trim(), trc20: document.getElementById('addr_usdt_trc20').value.trim(), eth: document.getElementById('addr_usdt_eth').value.trim(), erc20: document.getElementById('addr_usdt_erc20').value.trim() },
-                usdc: { bep20: document.getElementById('addr_usdc_bep20').value.trim(), erc20: document.getElementById('addr_usdc_erc20').value.trim(), sol: document.getElementById('addr_usdc_sol').value.trim() },
-                btc: { btc: document.getElementById('addr_btc_btc').value.trim(), bep20: document.getElementById('addr_btc_bep20').value.trim(), lightning: document.getElementById('addr_btc_lightning').value.trim() }
+                usdt: {
+                    bep20: document.getElementById('addr_usdt_bep20').value.trim(),
+                    trc20: document.getElementById('addr_usdt_trc20').value.trim(),
+                    eth: document.getElementById('addr_usdt_eth').value.trim(),
+                    erc20: document.getElementById('addr_usdt_erc20').value.trim()
+                },
+                usdc: {
+                    bep20: document.getElementById('addr_usdc_bep20').value.trim(),
+                    erc20: document.getElementById('addr_usdc_erc20').value.trim(),
+                    sol: document.getElementById('addr_usdc_sol').value.trim()
+                },
+                btc: {
+                    btc: document.getElementById('addr_btc_btc').value.trim(),
+                    bep20: document.getElementById('addr_btc_bep20').value.trim(),
+                    lightning: document.getElementById('addr_btc_lightning').value.trim()
+                }
             };
-            saveDepositAddresses(data);
-            msg.className = 'msg success';
-            msg.textContent = '✅ Payment settings saved!';
-            msg.style.display = 'block';
-            setTimeout(() => { msg.style.display = 'none'; }, 3000);
+            try {
+                await saveDepositAddresses(data);
+                msg.className = 'msg success';
+                msg.textContent = '✅ Payment settings saved!';
+                msg.style.display = 'block';
+                setTimeout(() => { msg.style.display = 'none'; }, 3000);
+            } catch (err) {
+                msg.className = 'msg error';
+                msg.textContent = '❌ Error: ' + err.message;
+                msg.style.display = 'block';
+            }
         });
 
-        function loadAdminData() {
-            loadUsersTable();
-            loadNewsDataIntoForm();
-            loadPaymentSettings();
-            loadCvvManageTable();
-            loadLogsManageTable();
+        // =============================================================
+        // 8. LOAD ALL DATA
+        // =============================================================
+        async function loadAdminData() {
+            await loadUsersTable();
+            await loadNewsDataIntoForm();
+            await loadPaymentSettings();
+            await loadCvvManageTable();
+            await loadLogsManageTable();
         }
 
-        console.log('✅ Admin Panel ready. Password: admin123');
-        console.log('✅ Country dropdowns now show flags and store country codes.');
+        console.log('✅ Admin Panel ready with Firebase. Password: admin123');
     </script>
 </body>
 </html>
