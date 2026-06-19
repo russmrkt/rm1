@@ -1,0 +1,594 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Deposit - Russian Market</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <style>
+        /* ===== RESET & BASE ===== */
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Segoe UI', Tahoma, sans-serif; }
+        body { background-color: #0a0d10; color: #d1d5db; min-height: 100vh; display: flex; justify-content: center; align-items: center; padding: 20px; }
+
+        /* ===== CONTAINER ===== */
+        .deposit-container {
+            max-width: 600px;
+            width: 100%;
+            background: #131a1f;
+            border-radius: 16px;
+            border: 1px solid #2a333a;
+            padding: 30px 25px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.8);
+        }
+
+        /* Header */
+        .deposit-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 25px;
+            padding-bottom: 15px;
+            border-bottom: 1px solid #2a333a;
+        }
+        .deposit-header h2 { color: #f0b90b; font-size: 24px; }
+        .deposit-header .back-link { color: #6b7a88; text-decoration: none; font-size: 14px; transition: 0.3s; }
+        .deposit-header .back-link:hover { color: #f0b90b; }
+
+        /* Balance Display */
+        .user-balance-box {
+            background: #1e2830;
+            border-radius: 10px;
+            padding: 15px 20px;
+            margin-bottom: 25px;
+            border: 1px solid #2a333a;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .user-balance-box .label { color: #6b7a88; font-size: 14px; }
+        .user-balance-box .amount { color: #f0b90b; font-size: 28px; font-weight: bold; }
+
+        /* ===== CRYPTO CARDS ===== */
+        .crypto-section { margin-bottom: 15px; }
+
+        .crypto-card {
+            background: #1a242c;
+            border-radius: 10px;
+            border: 1px solid #2a333a;
+            overflow: hidden;
+            transition: 0.3s;
+            margin-bottom: 12px;
+        }
+        .crypto-card:hover { border-color: #f0b90b; }
+
+        .crypto-header {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            padding: 15px 18px;
+            cursor: pointer;
+            transition: 0.3s;
+            user-select: none;
+        }
+        .crypto-header:hover { background: #1f2a33; }
+
+        .crypto-header .logo {
+            width: 44px;
+            height: 44px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 22px;
+            font-weight: bold;
+            flex-shrink: 0;
+        }
+        .crypto-header .logo.usdt { background: #26a17b33; color: #26a17b; border: 2px solid #26a17b; }
+        .crypto-header .logo.usdc { background: #2775ca33; color: #2775ca; border: 2px solid #2775ca; }
+        .crypto-header .logo.btc { background: #f7931a33; color: #f7931a; border: 2px solid #f7931a; }
+
+        .crypto-header .info { flex: 1; }
+        .crypto-header .info .name { font-size: 18px; font-weight: bold; color: #fff; }
+        .crypto-header .info .sub { font-size: 13px; color: #6b7a88; }
+
+        .crypto-header .arrow { color: #6b7a88; font-size: 18px; transition: 0.3s; }
+        .crypto-header .arrow.open { transform: rotate(180deg); }
+
+        /* Networks List (hidden by default) */
+        .networks-list {
+            display: none;
+            padding: 0 18px 18px 18px;
+            border-top: 1px solid #2a333a;
+        }
+        .networks-list.open { display: block; }
+
+        .network-item {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 12px 15px;
+            margin-top: 8px;
+            background: #131a1f;
+            border-radius: 8px;
+            border: 1px solid #2a333a;
+            cursor: pointer;
+            transition: 0.3s;
+        }
+        .network-item:hover { border-color: #f0b90b; background: #1e2830; }
+
+        .network-item .net-name { color: #d1d5db; font-size: 14px; font-weight: 500; }
+        .network-item .net-icon { color: #6b7a88; font-size: 14px; }
+
+        /* Address Display (hidden by default) */
+        .address-display {
+            display: none;
+            margin-top: 12px;
+            padding: 14px 16px;
+            background: #0a0d10;
+            border-radius: 8px;
+            border: 1px solid #2a333a;
+            display: none;
+            align-items: center;
+            gap: 12px;
+            justify-content: space-between;
+        }
+        .address-display.show { display: flex; }
+
+        .address-display .addr {
+            font-family: monospace;
+            font-size: 13px;
+            color: #f0b90b;
+            word-break: break-all;
+            flex: 1;
+        }
+        .address-display .copy-btn {
+            background: transparent;
+            border: 1px solid #2a333a;
+            border-radius: 6px;
+            padding: 6px 12px;
+            color: #9aa6b2;
+            cursor: pointer;
+            transition: 0.3s;
+            font-size: 13px;
+            white-space: nowrap;
+        }
+        .address-display .copy-btn:hover {
+            background: #f0b90b;
+            color: #0b0e11;
+            border-color: #f0b90b;
+        }
+        .address-display .copy-btn.copied {
+            background: #2ecc71;
+            color: #fff;
+            border-color: #2ecc71;
+        }
+
+        /* ===== IM PAY BUTTON ===== */
+        .im-pay-section {
+            margin-top: 25px;
+            padding-top: 20px;
+            border-top: 1px solid #2a333a;
+            text-align: center;
+        }
+        .im-pay-btn {
+            background: #f0b90b;
+            color: #0b0e11;
+            border: none;
+            padding: 16px 40px;
+            border-radius: 10px;
+            font-size: 20px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: 0.3s;
+            width: 100%;
+        }
+        .im-pay-btn:hover {
+            background: #d4a30a;
+            transform: scale(1.02);
+        }
+        .im-pay-btn:active { transform: scale(0.97); }
+
+        /* Success Modal */
+        .modal-overlay {
+            display: none;
+            position: fixed;
+            top: 0; left: 0;
+            width: 100%; height: 100%;
+            background: rgba(0,0,0,0.85);
+            justify-content: center;
+            align-items: center;
+            z-index: 9999;
+            backdrop-filter: blur(4px);
+            padding: 20px;
+        }
+        .modal-overlay.active { display: flex; }
+        .modal-box {
+            background: #141a1f;
+            padding: 40px 35px;
+            border-radius: 16px;
+            border: 1px solid #2a333a;
+            max-width: 400px;
+            width: 100%;
+            text-align: center;
+        }
+        .modal-box .icon { font-size: 56px; color: #2ecc71; margin-bottom: 15px; }
+        .modal-box h3 { color: #f0b90b; font-size: 24px; margin-bottom: 10px; }
+        .modal-box p { color: #6b7a88; font-size: 14px; margin-bottom: 20px; line-height: 1.6; }
+        .modal-box .modal-close-btn {
+            background: #f0b90b;
+            color: #0b0e11;
+            border: none;
+            padding: 12px 30px;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: 0.3s;
+        }
+        .modal-box .modal-close-btn:hover { background: #d4a30a; }
+
+        /* ===== RESPONSIVE ===== */
+        @media (max-width: 500px) {
+            .deposit-container { padding: 20px 15px; }
+            .crypto-header { padding: 12px 14px; }
+            .crypto-header .logo { width: 36px; height: 36px; font-size: 18px; }
+            .crypto-header .info .name { font-size: 16px; }
+            .deposit-header h2 { font-size: 20px; }
+            .user-balance-box .amount { font-size: 22px; }
+            .im-pay-btn { font-size: 18px; padding: 14px; }
+            .address-display { flex-wrap: wrap; }
+            .address-display .addr { font-size: 12px; }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="deposit-container">
+
+        <!-- Header -->
+        <div class="deposit-header">
+            <h2>💰 Deposit</h2>
+            <a href="index.html" class="back-link"><i class="fas fa-arrow-left"></i> Back</a>
+        </div>
+
+        <!-- User Balance -->
+        <div class="user-balance-box">
+            <span class="label"><i class="fas fa-wallet"></i> Your Balance</span>
+            <span class="amount" id="userBalanceDisplay">$0.00</span>
+        </div>
+
+        <!-- ===== CRYPTO CARDS ===== -->
+        <div id="cryptoList">
+            <!-- USDT -->
+            <div class="crypto-section">
+                <div class="crypto-card" data-crypto="usdt">
+                    <div class="crypto-header" onclick="toggleNetworks('usdt')">
+                        <div class="logo usdt">₮</div>
+                        <div class="info">
+                            <div class="name">USDT</div>
+                            <div class="sub">Tether</div>
+                        </div>
+                        <span class="arrow" id="arrow-usdt"><i class="fas fa-chevron-down"></i></span>
+                    </div>
+                    <div class="networks-list" id="networks-usdt">
+                        <!-- Networks will be loaded by JS -->
+                    </div>
+                </div>
+            </div>
+
+            <!-- USDC -->
+            <div class="crypto-section">
+                <div class="crypto-card" data-crypto="usdc">
+                    <div class="crypto-header" onclick="toggleNetworks('usdc')">
+                        <div class="logo usdc">₵</div>
+                        <div class="info">
+                            <div class="name">USDC</div>
+                            <div class="sub">USD Coin</div>
+                        </div>
+                        <span class="arrow" id="arrow-usdc"><i class="fas fa-chevron-down"></i></span>
+                    </div>
+                    <div class="networks-list" id="networks-usdc">
+                        <!-- Networks will be loaded by JS -->
+                    </div>
+                </div>
+            </div>
+
+            <!-- BTC -->
+            <div class="crypto-section">
+                <div class="crypto-card" data-crypto="btc">
+                    <div class="crypto-header" onclick="toggleNetworks('btc')">
+                        <div class="logo btc">₿</div>
+                        <div class="info">
+                            <div class="name">BTC</div>
+                            <div class="sub">Bitcoin</div>
+                        </div>
+                        <span class="arrow" id="arrow-btc"><i class="fas fa-chevron-down"></i></span>
+                    </div>
+                    <div class="networks-list" id="networks-btc">
+                        <!-- Networks will be loaded by JS -->
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ===== IM PAY BUTTON ===== -->
+        <div class="im-pay-section">
+            <button class="im-pay-btn" id="imPayBtn"><i class="fas fa-check-circle"></i> I'M PAY</button>
+        </div>
+
+    </div>
+
+    <!-- ===== SUCCESS MODAL ===== -->
+    <div class="modal-overlay" id="successModal">
+        <div class="modal-box">
+            <div class="icon"><i class="fas fa-check-circle"></i></div>
+            <h3>✅ Payment Submitted!</h3>
+            <p>Your deposit request has been recorded. The funds will be credited to your account after confirmation on the blockchain.</p>
+            <button class="modal-close-btn" onclick="closeModal()">OK, Got it!</button>
+        </div>
+    </div>
+
+    <!-- ==============================================
+    JAVASCRIPT
+    ============================================== -->
+    <script>
+        // =============================================================
+        // 1. CHECK LOGIN & LOAD BALANCE
+        // =============================================================
+        function getUsers() {
+            const users = localStorage.getItem('russian_market_users');
+            return users ? JSON.parse(users) : [];
+        }
+
+        function getCurrentUser() {
+            return localStorage.getItem('russian_market_current_user');
+        }
+
+        const currentUser = getCurrentUser();
+        if (!currentUser) {
+            // Not logged in, redirect to index
+            window.location.href = 'index.html';
+        }
+
+        // Load user balance
+        const users = getUsers();
+        const user = users.find(u => u.username === currentUser);
+        const balance = user && user.balance ? user.balance : 0;
+        document.getElementById('userBalanceDisplay').textContent = '$' + balance.toFixed(2);
+
+        // =============================================================
+        // 2. LOAD ADDRESSES FROM localStorage
+        // =============================================================
+        function getDepositAddresses() {
+            const defaultData = {
+                usdt: {
+                    bep20: '',
+                    trc20: '',
+                    eth: '',
+                    erc20: ''
+                },
+                usdc: {
+                    bep20: '',
+                    erc20: '',
+                    sol: ''
+                },
+                btc: {
+                    btc: '',
+                    bep20: '',
+                    lightning: ''
+                }
+            };
+
+            const stored = localStorage.getItem('russian_market_deposit_addresses');
+            if (stored) {
+                try {
+                    return JSON.parse(stored);
+                } catch(e) {
+                    return defaultData;
+                }
+            }
+            return defaultData;
+        }
+
+        const addresses = getDepositAddresses();
+
+        // =============================================================
+        // 3. RENDER NETWORKS
+        // =============================================================
+        const networkConfigs = {
+            usdt: {
+                label: 'USDT',
+                networks: [
+                    { key: 'bep20', name: 'BEP20 (BSC)' },
+                    { key: 'trc20', name: 'TRC20 (Tron)' },
+                    { key: 'eth', name: 'ETH (Ethereum)' },
+                    { key: 'erc20', name: 'ERC20' }
+                ]
+            },
+            usdc: {
+                label: 'USDC',
+                networks: [
+                    { key: 'bep20', name: 'BEP20 (BSC)' },
+                    { key: 'erc20', name: 'ERC20' },
+                    { key: 'sol', name: 'SOL (Solana)' }
+                ]
+            },
+            btc: {
+                label: 'BTC',
+                networks: [
+                    { key: 'btc', name: 'BTC (Native)' },
+                    { key: 'bep20', name: 'BEP20 (BSC)' },
+                    { key: 'lightning', name: 'Lightning Network' }
+                ]
+            }
+        };
+
+        function renderNetworks(crypto) {
+            const container = document.getElementById(`networks-${crypto}`);
+            const config = networkConfigs[crypto];
+            const data = addresses[crypto] || {};
+
+            let html = '';
+            config.networks.forEach(net => {
+                const address = data[net.key] || '';
+                html += `
+                        <div class="network-item" onclick="toggleAddress('${crypto}', '${net.key}')">
+                            <span class="net-name">${net.name}</span>
+                            <span class="net-icon"><i class="fas fa-chevron-right"></i></span>
+                        </div>
+                        <div class="address-display" id="addr-${crypto}-${net.key}">
+                            <span class="addr">${address || 'No address configured'}</span>
+                            <button class="copy-btn" onclick="copyAddress(event, '${crypto}', '${net.key}')">
+                                <i class="fas fa-copy"></i> Copy
+                            </button>
+                        </div>
+                    `;
+            });
+
+            container.innerHTML = html;
+        }
+
+        // Render all networks on load
+        renderNetworks('usdt');
+        renderNetworks('usdc');
+        renderNetworks('btc');
+
+        // =============================================================
+        // 4. TOGGLE NETWORKS (Expand/Collapse)
+        // =============================================================
+        function toggleNetworks(crypto) {
+            const list = document.getElementById(`networks-${crypto}`);
+            const arrow = document.getElementById(`arrow-${crypto}`);
+
+            // Close all other open networks first
+            document.querySelectorAll('.networks-list').forEach(el => {
+                if (el.id !== `networks-${crypto}`) {
+                    el.classList.remove('open');
+                    const otherArrow = document.getElementById(`arrow-${el.id.replace('networks-', '')}`);
+                    if (otherArrow) otherArrow.classList.remove('open');
+                }
+            });
+
+            // Toggle current
+            list.classList.toggle('open');
+            arrow.classList.toggle('open');
+
+            // If opening, render networks (if not already rendered)
+            if (list.classList.contains('open')) {
+                // Already rendered from init, but re-render in case addresses changed
+                renderNetworks(crypto);
+            }
+        }
+
+        // =============================================================
+        // 5. TOGGLE ADDRESS (Show/Hide)
+        // =============================================================
+        function toggleAddress(crypto, networkKey) {
+            const addrElement = document.getElementById(`addr-${crypto}-${networkKey}`);
+            const allAddresses = document.querySelectorAll('.address-display');
+
+            // Close all other addresses
+            allAddresses.forEach(el => {
+                if (el.id !== `addr-${crypto}-${networkKey}`) {
+                    el.classList.remove('show');
+                }
+            });
+
+            // Toggle current
+            addrElement.classList.toggle('show');
+
+            // If showing and address is empty, show message
+            const addressText = addrElement.querySelector('.addr');
+            if (addressText && addressText.textContent.trim() === 'No address configured') {
+                // Keep it as is
+            }
+        }
+
+        // =============================================================
+        // 6. COPY ADDRESS
+        // =============================================================
+        function copyAddress(event, crypto, networkKey) {
+            event.stopPropagation(); // Prevent toggling the address
+
+            const addrElement = document.getElementById(`addr-${crypto}-${networkKey}`);
+            const addrSpan = addrElement.querySelector('.addr');
+            const btn = addrElement.querySelector('.copy-btn');
+
+            const address = addrSpan.textContent.trim();
+            if (!address || address === 'No address configured') {
+                alert('No address configured for this network.');
+                return;
+            }
+
+            // Copy to clipboard
+            if (navigator.clipboard && navigator.clipboard.writeText) {
+                navigator.clipboard.writeText(address).then(() => {
+                    btn.innerHTML = '<i class="fas fa-check"></i> Copied!';
+                    btn.classList.add('copied');
+                    setTimeout(() => {
+                        btn.innerHTML = '<i class="fas fa-copy"></i> Copy';
+                        btn.classList.remove('copied');
+                    }, 2500);
+                }).catch(() => {
+                    fallbackCopy(address, btn);
+                });
+            } else {
+                fallbackCopy(address, btn);
+            }
+        }
+
+        function fallbackCopy(text, btn) {
+            const textarea = document.createElement('textarea');
+            textarea.value = text;
+            document.body.appendChild(textarea);
+            textarea.select();
+            try {
+                document.execCommand('copy');
+                btn.innerHTML = '<i class="fas fa-check"></i> Copied!';
+                btn.classList.add('copied');
+                setTimeout(() => {
+                    btn.innerHTML = '<i class="fas fa-copy"></i> Copy';
+                    btn.classList.remove('copied');
+                }, 2500);
+            } catch (e) {
+                alert('Could not copy address. Please select and copy manually.');
+            }
+            document.body.removeChild(textarea);
+        }
+
+        // =============================================================
+        // 7. I'M PAY BUTTON
+        // =============================================================
+        document.getElementById('imPayBtn').addEventListener('click', function() {
+            // Check if any address is visible (user selected a network)
+            const visibleAddress = document.querySelector('.address-display.show');
+            if (!visibleAddress) {
+                alert('Please select a cryptocurrency and network first, then copy the address to send payment.');
+                return;
+            }
+
+            // Show success modal
+            document.getElementById('successModal').classList.add('active');
+        });
+
+        // =============================================================
+        // 8. MODAL FUNCTIONS
+        // =============================================================
+        function closeModal() {
+            document.getElementById('successModal').classList.remove('active');
+        }
+
+        // Close modal on overlay click
+        document.getElementById('successModal').addEventListener('click', function(e) {
+            if (e.target === this) {
+                closeModal();
+            }
+        });
+
+        console.log('✅ Deposit page loaded successfully.');
+        console.log('💰 Current user:', currentUser);
+        console.log('💳 Addresses loaded from localStorage.');
+    </script>
+
+</body>
+</html>

@@ -1,0 +1,792 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>CVV - Russian Market</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <style>
+        /* ===== FLAG SPRITES (Full list from user) ===== */
+        .flag{display:inline-block;width:32px;height:32px;background:url('https://cdn.jsdelivr.net/npm/flag-sprite@1.0.0/flags.png') no-repeat;background-size:512px 512px}
+        .flag.flag-ve{background-position:-64px -448px}.flag.flag-ao{background-position:-256px 0}.flag.flag-kh{background-position:-448px -192px}.flag.flag-bh{background-position:-192px -32px}.flag.flag-fi{background-position:-64px -128px}.flag.flag-gs{background-position:-128px -160px}.flag.flag-sl{background-position:-32px -384px}.flag.flag-dj{background-position:-160px -96px}.flag.flag-zm{background-position:-384px -448px}.flag.flag-cn{background-position:-384px -64px}.flag.flag-pg{background-position:-288px -320px}.flag.flag-gq{background-position:-64px -160px}.flag.flag-co{background-position:-416px -64px}.flag.flag-cg{background-position:-192px -64px}.flag.flag-wf{background-position:-224px -448px}.flag.flag-mx{background-position:-192px -288px}.flag.flag-bo{background-position:-384px -32px}.flag.flag-lv{background-position:0 -256px}.flag.flag-vg{background-position:-96px -448px}.flag.flag-la{background-position:-224px -224px}.flag.flag-kr{background-position:-96px -224px}.flag.flag-pe{background-position:-224px -320px}.flag.flag-ps{background-position:-480px -320px}.flag.flag-sc{background-position:-320px -352px}.flag.flag-ai{background-position:-128px 0}.flag.flag-so{background-position:-128px -384px}.flag.flag-mt{background-position:-64px -288px}.flag.flag-vu{background-position:-192px -448px}.flag.flag-is{background-position:-192px -192px}.flag.flag-et{background-position:0 -128px}.flag.flag-gw{background-position:-224px -160px}.flag.flag-us{background-position:-416px -416px}.flag.flag-eu{background-position:-32px -128px}.flag.flag-sg{background-position:-416px -352px}.flag.flag-zw{background-position:-416px -448px}.flag.flag-bi{background-position:-224px -32px}.flag.flag-mo{background-position:-416px -256px}.flag.flag-aw{background-position:-416px 0}.flag.flag-vn{background-position:-160px -448px}.flag.flag-ki{background-position:-480px -192px}.flag.flag-lt{background-position:-448px -224px}.flag.flag-za{background-position:-352px -448px}.flag.flag-ua{background-position:-352px -416px}.flag.flag-md{background-position:-128px -256px}.flag.flag-bm{background-position:-320px -32px}.flag.flag-py{background-position:-64px -352px}.flag.flag-st{background-position:-224px -384px}.flag.flag-bn{background-position:-352px -32px}.flag.flag-ru{background-position:-192px -352px}.flag.flag-lc{background-position:-288px -224px}.flag.flag-nz{background-position:-128px -320px}.flag.flag-do{background-position:-256px -96px}.flag.flag-va{background-position:0 -448px}.flag.flag-uy{background-position:-448px -416px}.flag.flag-me{background-position:-160px -256px}.flag.flag-mm{background-position:-352px -256px}.flag.flag-gm{background-position:0 -160px}.flag.flag-ms{background-position:-32px -288px}.flag.flag-ck{background-position:-288px -64px}.flag.flag-kp{background-position:-64px -224px}.flag.flag-tn{background-position:-128px -416px}.flag.flag-ky{background-position:-160px -224px}.flag.flag-tt{background-position:-224px -416px}.flag.flag-no{background-position:0 -320px}.flag.flag-ar{background-position:-288px 0}.flag.flag-ae{background-position:-32px 0}.flag.flag-an{background-position:-224px 0}.flag.flag-sr{background-position:-160px -384px}.flag.flag-ie{background-position:0 -192px}.flag.flag-cl{background-position:-320px -64px}.flag.flag-it{background-position:-224px -192px}.flag.flag-pa{background-position:-192px -320px}.flag.flag-gy{background-position:-256px -160px}.flag.flag-mv{background-position:-128px -288px}.flag.flag-jo{background-position:-320px -192px}.flag.flag-nf{background-position:-384px -288px}.flag.flag-vc{background-position:-32px -448px}.flag.flag-bl{background-position:-288px -32px}.flag.flag-cd{background-position:-128px -64px}.flag.flag-gi{background-position:-448px -128px}.flag.flag-np{background-position:-32px -320px}.flag.flag-mn{background-position:-384px -256px}.flag.flag-fm{background-position:-160px -128px}.flag.flag-au{background-position:-384px 0}.flag.flag-ma{background-position:-64px -256px}.flag.flag-bf{background-position:-128px -32px}.flag.flag-ne{background-position:-352px -288px}.flag.flag-dm{background-position:-224px -96px}.flag.flag-im{background-position:-64px -192px}.flag.flag-cm{background-position:-352px -64px}.flag.flag-ml{background-position:-320px -256px}.flag.flag-sy{background-position:-288px -384px}.flag.flag-sd{background-position:-352px -352px}.flag.flag-al{background-position:-160px 0}.flag.flag-bj{background-position:-256px -32px}.flag.flag-ca{background-position:-96px -64px}.flag.flag-ls{background-position:-416px -224px}.flag.flag-kw{background-position:-128px -224px}.flag.flag-ee{background-position:-352px -96px}.flag.flag-ph{background-position:-320px -320px}.flag.flag-ss{background-position:-192px -384px}.flag.flag-de{background-position:-128px -96px}.flag.flag-sv{background-position:-256px -384px}.flag.flag-az{background-position:-480px 0}.flag.flag-nc{background-position:-320px -288px}.flag.flag-fr{background-position:-224px -128px}.flag.flag-ni{background-position:-448px -288px}.flag.flag-hk{background-position:-288px -160px}.flag.flag-mu{background-position:-96px -288px}.flag.flag-pr{background-position:-448px -320px}.flag.flag-ro{background-position:-128px -352px}.flag.flag-ic{background-position:-448px -160px}.flag.flag-tr{background-position:-192px -416px}.flag.flag-es{background-position:-480px -96px}.flag.flag-ba{background-position:0 -32px}.flag.flag-sn{background-position:-96px -384px}.flag.flag-il{background-position:-32px -192px}.flag.flag-to{background-position:-160px -416px}.flag.flag-uz{background-position:-480px -416px}.flag.flag-sk{background-position:0 -384px}.flag.flag-bz{background-position:-64px -64px}.flag.flag-gh{background-position:-416px -128px}.flag.flag-nu{background-position:-96px -320px}.flag.flag-id{background-position:-480px -160px}.flag.flag-ge{background-position:-352px -128px}.flag.flag-pl{background-position:-384px -320px}.flag.flag-se{background-position:-384px -352px}.flag.flag-th{background-position:-480px -384px}.flag.flag-ec{background-position:-320px -96px}.flag.flag-dz{background-position:-288px -96px}.flag.flag-ws{background-position:-256px -448px}.flag.flag-fo{background-position:-192px -128px}.flag.flag-bw{background-position:0 -64px}.flag.flag-gt{background-position:-160px -160px}.flag.flag-ga{background-position:-256px -128px}.flag.flag-ci{background-position:-256px -64px}.flag.flag-gr{background-position:-96px -160px}.flag.flag-rw{background-position:-224px -352px}.flag.flag-pw{background-position:-32px -352px}.flag.flag-ye{background-position:-288px -448px}.flag.flag-hu{background-position:-416px -160px}.flag.flag-by{background-position:-32px -64px}.flag.flag-eg{background-position:-384px -96px}.flag.flag-my{background-position:-224px -288px}.flag.flag-tk{background-position:-32px -416px}.flag.flag-nr{background-position:-64px -320px}.flag.flag-li{background-position:-320px -224px}.flag.flag-as{background-position:-320px 0}.flag.flag-tv{background-position:-256px -416px}.flag.flag-tf{background-position:-416px -384px}.flag.flag-bb{background-position:-32px -32px}.flag.flag-mf{background-position:-192px -256px}.flag.flag-ke{background-position:-384px -192px}.flag.flag-td{background-position:-384px -384px}.flag.flag-fj{background-position:-96px -128px}.flag.flag-tz{background-position:-320px -416px}.flag.flag-gu{background-position:-192px -160px}.flag.flag-si{background-position:-480px -352px}.flag.flag-bs{background-position:-448px -32px}.flag.flag-ly{background-position:-32px -256px}.flag.flag-tg{background-position:-448px -384px}.flag.flag-mk{background-position:-288px -256px}.flag.flag-mw{background-position:-160px -288px}.flag.flag-sz{background-position:-320px -384px}.flag.flag-yt{background-position:-320px -448px}.flag.flag-sb{background-position:-288px -352px}.flag.flag-ax{background-position:-448px 0}.flag.flag-jp{background-position:-352px -192px}.flag.flag-gd{background-position:-320px -128px}.flag.flag-bg{background-position:-160px -32px}.flag.flag-gb{background-position:-288px -128px}.flag.flag-tj{background-position:0 -416px}.flag.flag-ng{background-position:-416px -288px}.flag.flag-tm{background-position:-96px -416px}.flag.flag-tl{background-position:-64px -416px}.flag.flag-mg{background-position:-224px -256px}.flag.flag-at{background-position:-352px 0}.flag.flag-ch{background-position:-224px -64px}.flag.flag-mc{background-position:-96px -256px}.flag.flag-ug{background-position:-384px -416px}.flag.flag-cv{background-position:0 -96px}.flag.flag-mz{background-position:-256px -288px}.flag.flag-bt{background-position:-480px -32px}.flag.flag-cz{background-position:-96px -96px}.flag.flag-cy{background-position:-64px -96px}.flag.flag-mr{background-position:0 -288px}.flag.flag-kg{background-position:-416px -192px}.flag.flag-ht{background-position:-384px -160px}.flag.flag-mh{background-position:-256px -256px}.flag.flag-kn{background-position:-32px -224px}.flag.flag-vi{background-position:-128px -448px}.flag.flag-jm{background-position:-288px -192px}.flag.flag-pk{background-position:-352px -320px}.flag.flag-km{background-position:0 -224px}.flag.flag-om{background-position:-160px -320px}.flag.flag-kz{background-position:-192px -224px}.flag.flag-cu{background-position:-480px -64px}.flag.flag-af{background-position:-64px 0}.flag.flag-mq{background-position:-480px -256px}.flag.flag-bd{background-position:-64px -32px}.flag.flag-gn{background-position:-32px -160px}.flag.flag-ad{background-position:0 0}.flag.flag-gg{background-position:-384px -128px}.flag.flag-rs{background-position:-160px -352px}.flag.flag-iq{background-position:-128px -192px}.flag.flag-in{background-position:-96px -192px}.flag.flag-cw{background-position:-32px -96px}.flag.flag-pf{background-position:-256px -320px}.flag.flag-be{background-position:-96px -32px}.flag.flag-sa{background-position:-256px -352px}.flag.flag-sm{background-position:-64px -384px}.flag.flag-sh{background-position:-448px -352px}.flag.flag-nl{background-position:-480px -288px}.flag.flag-lu{background-position:-480px -224px}.flag.flag-lk{background-position:-352px -224px}.flag.flag-ir{background-position:-160px -192px}.flag.flag-pt{background-position:0 -352px}.flag.flag-dk{background-position:-192px -96px}.flag.flag-am{background-position:-192px 0}.flag.flag-er{background-position:-448px -96px}.flag.flag-br{background-position:-416px -32px}.flag.flag-tw{background-position:-288px -416px}.flag.flag-na{background-position:-288px -288px}.flag.flag-qa{background-position:-96px -352px}.flag.flag-je{background-position:-256px -192px}.flag.flag-eh{background-position:-416px -96px}.flag.flag-cr{background-position:-448px -64px}.flag.flag-cf{background-position:-160px -64px}.flag.flag-hr{background-position:-352px -160px}.flag.flag-gl{background-position:-480px -128px}.flag.flag-ag{background-position:-96px 0}.flag.flag-hn{background-position:-320px -160px}.flag.flag-mp{background-position:-448px -256px}.flag.flag-lr{background-position:-384px -224px}.flag.flag-pn{background-position:-416px -320px}.flag.flag-lb{background-position:-256px -224px}.flag.flag-tc{background-position:-352px -384px}.flag.flag-fk{background-position:-128px -128px}
+
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
+        body { background-color: #0a0d10; color: #d1d5db; min-height: 100vh; }
+
+        /* =============================================
+           DASHBOARD - HEADER FIXED + SIDEBAR
+           ============================================= */
+        #dashboardPage { display: block; width: 100%; min-height: 100vh; background: #0f1419; }
+
+        /* ===== TOP HEADER (FIXED) ===== */
+        .top-header {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            z-index: 1000;
+            background: #131a1f;
+            border-bottom: 1px solid #2a333a;
+            padding: 8px 16px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            height: 50px;
+        }
+        .top-header .logo img { max-height: 30px; }
+
+        /* LEFT SECTION: Menu Toggle + Logo + User Dropdown (SINGLE USERNAME) */
+        .top-header .left-section {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+        #mobileMenuToggle {
+            display: none;
+            font-size: 18px;
+            color: #f0b90b;
+            cursor: pointer;
+            padding: 4px;
+            background: transparent;
+            border: none;
+        }
+
+        .user-dropdown {
+            position: relative;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+        .user-dropdown .user-avatar { width: 28px; height: 28px; border-radius: 50%; object-fit: cover; border: 1px solid #2a333a; }
+        .user-dropdown .username-display {
+            color: #f0b90b;
+            font-weight: bold;
+            font-size: 13px;
+            padding: 4px 8px;
+            border-radius: 20px;
+            border: 1px solid #2a333a;
+            background: #1e2830;
+            transition: 0.3s;
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+        .user-dropdown .username-display:hover { background: #2a333a; }
+        .user-dropdown .dropdown-menu {
+            display: none;
+            position: absolute;
+            top: 100%;
+            left: 0;
+            background: #131a1f;
+            border: 1px solid #2a333a;
+            border-radius: 8px;
+            min-width: 140px;
+            padding: 5px 0;
+            z-index: 1001;
+            box-shadow: 0 8px 16px rgba(0,0,0,0.5);
+        }
+        .user-dropdown .dropdown-menu.show { display: block; }
+        .user-dropdown .dropdown-menu a {
+            display: block;
+            padding: 8px 16px;
+            color: #d1d5db;
+            text-decoration: none;
+            transition: 0.3s;
+            font-size: 13px;
+        }
+        .user-dropdown .dropdown-menu a i { margin-right: 8px; width: 16px; font-size: 13px; }
+        .user-dropdown .dropdown-menu a:hover { background: #1f2a33; color: #f0b90b; }
+
+        /* RIGHT SECTION: Icons (REVERSED ORDER) */
+        .top-header .nav-icons {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            flex-direction: row-reverse;
+        }
+        .top-header .nav-icons i {
+            font-size: 16px;
+            color: #9aa6b2;
+            cursor: pointer;
+            transition: 0.3s;
+            padding: 4px;
+        }
+        .top-header .nav-icons i:hover { color: #f0b90b; }
+        .top-header .nav-icons .balance {
+            background: #1e2830;
+            padding: 4px 10px;
+            border-radius: 20px;
+            color: #f0b90b;
+            font-weight: bold;
+            font-size: 12px;
+            border: 1px solid #2a333a;
+            white-space: nowrap;
+        }
+
+        /* ===== SIDEBAR (NO USERNAME HERE - ONLY LINKS) ===== */
+        .sidebar-wrapper {
+            position: fixed;
+            top: 50px;
+            left: 0;
+            bottom: 0;
+            width: 200px;
+            background: #131a1f;
+            border-right: 1px solid #2a333a;
+            overflow-y: auto;
+            z-index: 999;
+            padding: 12px 10px;
+        }
+        .sidebar-wrapper ul { list-style: none; }
+        .sidebar-wrapper ul li {
+            padding: 8px 10px;
+            margin: 2px 0;
+            border-radius: 6px;
+            transition: 0.3s;
+            color: #9aa6b2;
+            font-size: 13px;
+            text-align: left;
+        }
+        .sidebar-wrapper ul li i { margin-right: 10px; width: 18px; font-size: 13px; }
+        .sidebar-wrapper ul li:hover, .sidebar-wrapper ul li.active { background: #1f2a33; color: #fff; }
+        .sidebar-wrapper ul li a { color: inherit; text-decoration: none; display: block; }
+
+        /* ===== MAIN CONTENT ===== */
+        .main-content {
+            margin-left: 200px;
+            margin-top: 50px;
+            padding: 16px 20px;
+            background: #0f1419;
+            min-height: calc(100vh - 50px);
+        }
+
+        /* ===== OVERLAY FOR MOBILE ===== */
+        .sidebar-overlay { display: none; position: fixed; top: 50px; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.6); z-index: 998; }
+        .sidebar-overlay.active { display: block; }
+
+        /* ===== CVV SPECIFIC STYLES ===== */
+        .cvv-container { max-width: 1600px; width: 100%; background: #131a1f; border-radius: 12px; border: 1px solid #2a333a; padding: 16px; }
+        .cvv-header { display: flex; justify-content: flex-end; align-items: center; margin-bottom: 15px; flex-wrap: wrap; gap: 8px; }
+        .cvv-header .back-link { color: #6b7a88; text-decoration: none; font-size: 13px; transition: 0.3s; }
+        .cvv-header .back-link:hover { color: #f0b90b; }
+        .cvv-header .user-balance { background: #1e2830; padding: 4px 12px; border-radius: 20px; border: 1px solid #2a333a; color: #f0b90b; font-weight: bold; font-size: 13px; }
+
+        .banner { border-radius: 10px; padding: 12px 14px; margin-bottom: 15px; display: none; align-items: center; gap: 12px; flex-wrap: wrap; }
+        .banner.show { display: flex; }
+        .banner i { font-size: 20px; }
+        .banner .text { flex: 1; font-size: 14px; font-weight: 500; }
+        .banner .text strong { color: #f0b90b; }
+        .banner .btn-deposit { background: #f0b90b; color: #0b0e11; border: none; padding: 6px 16px; border-radius: 6px; font-weight: bold; cursor: pointer; transition: 0.3s; font-size: 12px; text-decoration: none; display: inline-block; }
+        .banner .btn-deposit:hover { background: #d4a30a; }
+        .banner-disabled { background: #e74c3c22; border: 2px solid #e74c3c; }
+        .banner-disabled i { color: #e74c3c; }
+        .banner-disabled .text { color: #e74c3c; }
+        .banner-limited { background: #f39c1222; border: 2px solid #f39c12; }
+        .banner-limited i { color: #f39c12; }
+        .banner-limited .text { color: #f39c12; }
+        .banner-locked { background: #8e44ad22; border: 2px solid #8e44ad; }
+        .banner-locked i { color: #8e44ad; }
+        .banner-locked .text { color: #8e44ad; }
+
+        .filter-section { background: #1a242c; padding: 15px; border-radius: 10px; border: 1px solid #2a333a; margin-bottom: 20px; }
+        .filter-toggle { display: flex; justify-content: space-between; align-items: center; cursor: pointer; user-select: none; }
+        .filter-toggle h3 { color: #f0b90b; font-size: 15px; }
+        .filter-toggle i { color: #6b7a88; font-size: 16px; transition: 0.3s; }
+        .filter-toggle i.open { transform: rotate(180deg); }
+        .filter-grid-wrapper { overflow: hidden; max-height: 0; transition: max-height 0.4s ease-in-out; }
+        .filter-grid-wrapper.open { max-height: 800px; }
+        .filter-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); gap: 12px; padding-top: 15px; }
+        .filter-grid .filter-item { display: flex; flex-direction: column; gap: 4px; }
+        .filter-grid .filter-item label { font-size: 11px; color: #6b7a88; font-weight: bold; text-transform: uppercase; }
+        .filter-grid .filter-item input, .filter-grid .filter-item select { background: #0f1419; border: 1px solid #2a333a; border-radius: 6px; padding: 6px 8px; color: #fff; font-size: 13px; outline: none; }
+        .filter-grid .filter-item input:focus, .filter-grid .filter-item select:focus { border-color: #f0b90b; }
+        .filter-grid .filter-item input[type="range"] { padding: 0; background: transparent; accent-color: #f0b90b; cursor: pointer; }
+        .filter-grid .filter-item .price-range { display: flex; justify-content: space-between; font-size: 12px; color: #9aa6b2; }
+        .filter-grid .filter-item .checkbox-group { display: flex; align-items: center; gap: 6px; padding-top: 4px; }
+        .filter-grid .filter-item .checkbox-group input { width: 16px; height: 16px; accent-color: #f0b90b; cursor: pointer; }
+        .filter-actions { display: flex; justify-content: flex-end; margin-top: 12px; gap: 8px; }
+        .filter-actions button { background: #2a333a; border: none; padding: 6px 16px; border-radius: 6px; color: #d1d5db; cursor: pointer; transition: 0.3s; font-size: 13px; }
+        .filter-actions button:hover { background: #3a4a5a; }
+        .filter-actions .btn-apply { background: #f0b90b; color: #0b0e11; font-weight: bold; }
+        .filter-actions .btn-apply:hover { background: #d4a30a; }
+
+        .table-wrapper { overflow-x: auto; border-radius: 10px; border: 1px solid #2a333a; }
+        table { width: 100%; border-collapse: collapse; min-width: 1200px; font-size: 12px; }
+        thead { background: #1a242c; }
+        th { padding: 10px 6px; text-align: left; color: #9aa6b2; font-weight: 600; border-bottom: 2px solid #2a333a; white-space: nowrap; font-size: 11px; }
+        td { padding: 10px 6px; border-bottom: 1px solid #1e2830; vertical-align: middle; font-size: 12px; }
+
+        .row-blurred { filter: blur(5px); opacity: 0.3; pointer-events: none; user-select: none; }
+        .type-logo { font-weight: bold; font-size: 12px; padding: 2px 6px; border-radius: 4px; display: inline-block; }
+        .type-logo.visa { color: #1a1f71; background: #ffffff; }
+        .type-logo.mastercard { color: #ffffff; background: #eb001b; }
+        .bank-btn { background: #2a333a; border: none; padding: 3px 8px; border-radius: 10px; color: #f0b90b; cursor: pointer; transition: 0.3s; font-size: 11px; }
+        .bank-btn:hover { background: #f0b90b; color: #0b0e11; }
+
+        .country-cell { display: flex; align-items: center; gap: 4px; }
+        .country-cell .flag { width: 24px; height: 18px; background-size: 512px 512px; }
+
+        .action-btns { display: flex; gap: 4px; flex-wrap: wrap; }
+        .action-btns button { border: none; padding: 4px 10px; border-radius: 6px; font-size: 11px; font-weight: bold; cursor: pointer; transition: 0.3s; }
+        .action-btns .btn-cart { background: #2a333a; color: #f0b90b; border: 1px solid #f0b90b; }
+        .action-btns .btn-cart:hover { background: #f0b90b; color: #0b0e11; }
+        .action-btns .btn-buy { background: #f0b90b; color: #0b0e11; }
+        .action-btns .btn-buy:hover { background: #d4a30a; transform: scale(1.02); }
+        .action-btns .btn-sold { background: #e74c3c33; color: #e74c3c; cursor: not-allowed; opacity: 0.6; }
+
+        .empty-state { text-align: center; padding: 30px 20px; color: #6b7a88; }
+        .empty-state i { font-size: 40px; display: block; margin-bottom: 12px; }
+        .pagination { display: flex; justify-content: center; gap: 8px; margin-top: 15px; flex-wrap: wrap; }
+        .pagination button { background: #1a242c; border: 1px solid #2a333a; padding: 5px 12px; border-radius: 6px; color: #d1d5db; cursor: pointer; transition: 0.3s; font-size: 12px; }
+        .pagination button:hover { background: #2a333a; }
+        .pagination button.active { background: #f0b90b; color: #0b0e11; border-color: #f0b90b; }
+
+        .modal-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.85); justify-content: center; align-items: center; z-index: 9999; padding: 20px; backdrop-filter: blur(4px); }
+        .modal-overlay.active { display: flex; }
+        .modal-box { background: #141a1f; padding: 30px; border-radius: 12px; border: 1px solid #2a333a; max-width: 500px; width: 100%; }
+        .modal-box h3 { color: #f0b90b; margin-bottom: 12px; font-size: 20px; }
+        .modal-box .detail-row { display: flex; justify-content: space-between; padding: 6px 0; border-bottom: 1px solid #1e2830; font-size: 13px; }
+        .modal-box .detail-row .label { color: #6b7a88; }
+        .modal-box .detail-row .value { color: #fff; font-weight: 500; }
+        .modal-box .modal-close { background: #f0b90b; color: #0b0e11; border: none; padding: 8px 20px; border-radius: 6px; font-weight: bold; cursor: pointer; margin-top: 15px; width: 100%; font-size: 15px; transition: 0.3s; }
+        .modal-box .modal-close:hover { background: #d4a30a; }
+        .col-database { min-width: 100px; max-width: 150px; word-break: break-word; }
+
+        @media (max-width: 768px) {
+            .sidebar-wrapper { transform: translateX(-110%); transition: transform 0.3s ease; width: 240px; }
+            .sidebar-wrapper.open { transform: translateX(0); }
+            .main-content { margin-left: 0; padding: 12px 10px; }
+            .top-header { padding: 6px 10px; height: 44px; }
+            .top-header .logo img { max-height: 24px; }
+            .top-header .nav-icons .balance { font-size: 10px; padding: 2px 8px; }
+            .top-header .nav-icons i { font-size: 14px; }
+            .user-dropdown .username-display { font-size: 11px; padding: 2px 6px; }
+            .user-dropdown .user-avatar { width: 22px; height: 22px; }
+            #mobileMenuToggle { display: block; }
+            .cvv-container { padding: 10px; }
+            .filter-grid { grid-template-columns: 1fr 1fr; }
+            table { font-size: 11px; min-width: 1000px; }
+            th, td { padding: 6px 4px; }
+            .action-btns button { font-size: 10px; padding: 3px 6px; }
+            .col-database { min-width: 80px; max-width: 120px; }
+        }
+        @media (max-width: 500px) { .filter-grid { grid-template-columns: 1fr; } }
+        @media (min-width: 769px) {
+            .sidebar-wrapper { transform: translateX(0) !important; }
+            .sidebar-overlay { display: none !important; }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- ===== DASHBOARD ===== -->
+    <div id="dashboardPage">
+
+        <!-- ===== FIXED TOP HEADER ===== -->
+        <div class="top-header">
+            <div class="left-section">
+                <button id="mobileMenuToggle"><i class="fas fa-bars"></i></button>
+                <div class="logo"><img src="https://rm1.ad/static/RUSSIANMARKET/fils/zhAG7DczoD.png" alt="Russian Market"></div>
+                <div class="user-dropdown" id="userSection">
+                    <img class="user-avatar" src="https://rm1.ad/static/RUSSIANMARKET/fils/user.png" alt="User">
+                    <span class="username-display" id="headerUsername"><span id="headerUsernameText">User</span> <i class="fas fa-chevron-down" style="font-size:9px;"></i></span>
+                    <div class="dropdown-menu" id="userDropdownMenu">
+                        <a href="deposit.html"><i class="fas fa-coins"></i> Deposit</a>
+                        <a href="#" id="logoutLink"><i class="fas fa-sign-out-alt"></i> Logout</a>
+                    </div>
+                </div>
+            </div>
+            <div class="nav-icons">
+                <span class="balance" id="userBalance"><i class="fas fa-wallet"></i> $0.00</span>
+                <i class="fas fa-adjust" id="themeToggle" title="Toggle Theme"></i>
+                <i class="fas fa-briefcase" title="Activity Log"></i>
+                <i class="fas fa-shopping-cart" title="Cart"></i>
+                <i class="fas fa-envelope" title="Messages"></i>
+            </div>
+        </div>
+
+        <!-- ===== SIDEBAR ===== -->
+        <div class="sidebar-overlay" id="sidebarOverlay"></div>
+        <div class="sidebar-wrapper" id="sidebar">
+            <ul>
+                <li><a href="index.html"><i class="fas fa-newspaper"></i> News</a></li>
+                <li class="active"><a href="cvv.html"><i class="fas fa-credit-card"></i> CVV</a></li>
+                <li><a href="logs.html"><i class="fas fa-history"></i> LOGS</a></li>
+                <li><a href="tools.html"><i class="fas fa-tools"></i> TOOLS</a></li>
+                <li><a href="#"><i class="fas fa-check-double"></i> CHECKERS</a></li>
+                <li><a href="#"><i class="fas fa-shopping-bag"></i> MY PURCHASES</a></li>
+                <li><a href="#"><i class="fas fa-headset"></i> SUPPORT</a></li>
+            </ul>
+        </div>
+
+        <!-- ===== MAIN CONTENT ===== -->
+        <div class="main-content">
+            <div class="cvv-container">
+
+                <div class="cvv-header">
+                    <div style="display: flex; gap: 12px; align-items: center;">
+                        <span class="user-balance" id="userBalanceDisplay"><i class="fas fa-wallet"></i> $0.00</span>
+                        <a href="index.html" class="back-link"><i class="fas fa-arrow-left"></i> Back</a>
+                    </div>
+                </div>
+
+                <!-- Banners -->
+                <div class="banner banner-disabled" id="bannerDisabled">
+                    <i class="fas fa-exclamation-triangle"></i>
+                    <span class="text"><strong>⚠️ Account Not Activated!</strong> Deposit $50 to activate.</span>
+                    <a href="deposit.html" class="btn-deposit">Deposit</a>
+                </div>
+                <div class="banner banner-limited" id="bannerLimited">
+                    <i class="fas fa-eye-slash"></i>
+                    <span class="text"><strong>🔍 Limited Access!</strong> Only first 3 items visible.</span>
+                    <a href="deposit.html" class="btn-deposit">Deposit</a>
+                </div>
+                <div class="banner banner-locked" id="bannerLocked">
+                    <i class="fas fa-lock"></i>
+                    <span class="text"><strong>🔒 Account Locked!</strong> Access restricted.</span>
+                    <a href="deposit.html" class="btn-deposit">Deposit</a>
+                </div>
+
+                <!-- Filter -->
+                <div class="filter-section">
+                    <div class="filter-toggle" onclick="toggleFilters()">
+                        <h3><i class="fas fa-sliders-h"></i> Filters</h3>
+                        <i class="fas fa-chevron-down" id="filterArrow"></i>
+                    </div>
+                    <div class="filter-grid-wrapper" id="filterWrapper">
+                        <div class="filter-grid">
+                            <div class="filter-item"><label>Bins</label><input type="text" id="filterBins" placeholder="6 digits"></div>
+                            <div class="filter-item"><label>Bank</label><select id="filterBank"><option value="ALL">ALL</option></select></div>
+                            <div class="filter-item"><label>Country</label><select id="filterCountry"><option value="ALL">ALL</option></select></div>
+                            <div class="filter-item"><label>State</label><select id="filterState"><option value="ALL">ALL</option></select></div>
+                            <div class="filter-item"><label>City</label><select id="filterCity"><option value="ALL">ALL</option></select></div>
+                            <div class="filter-item"><label>ZIP</label><input type="text" id="filterZip" placeholder="ZIP"></div>
+                            <div class="filter-item"><label>DOB</label><select id="filterDob"><option value="ALL">ALL</option><option value="YES">YES</option><option value="NO">NO</option></select></div>
+                            <div class="filter-item"><label>SSN</label><select id="filterSsn"><option value="ALL">ALL</option><option value="YES">YES</option><option value="NO">NO</option></select></div>
+                            <div class="filter-item"><label>Level</label><select id="filterLevel"><option value="ALL">ALL</option></select></div>
+                            <div class="filter-item"><label>Class</label><select id="filterClass"><option value="ALL">ALL</option></select></div>
+                            <div class="filter-item"><label>Type</label><select id="filterType"><option value="ALL">ALL</option><option value="MASTERCARD">MASTERCARD</option><option value="VISA">VISA</option></select></div>
+                            <div class="filter-item"><label>Vendor</label><select id="filterVendor"><option value="ALL">ALL</option></select></div>
+                            <div class="filter-item"><label>Per Page</label><select id="filterPerPage"><option value="10">10</option><option value="25" selected>25</option><option value="50">50</option><option value="100">100</option></select></div>
+                            <div class="filter-item"><label>Price</label><input type="range" id="filterPrice" min="4" max="50" value="50"><div class="price-range"><span>$4</span><span id="priceDisplay">$50</span></div></div>
+                            <div class="filter-item"><label>Premium</label><div class="checkbox-group"><input type="checkbox" id="filterPremium"><label style="font-size:13px;color:#f0b90b;">Premium</label></div></div>
+                        </div>
+                        <div class="filter-actions">
+                            <button class="btn-apply" onclick="applyFilters()"><i class="fas fa-filter"></i> Apply</button>
+                            <button onclick="resetFilters()"><i class="fas fa-undo"></i> Reset</button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Table -->
+                <div class="table-wrapper">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th><input type="checkbox" id="selectAll" onchange="toggleAllCheckboxes()"></th>
+                                <th>TYPE</th><th>BIN</th><th>BANK</th><th>CLASS</th><th>Level</th><th>Expiry</th>
+                                <th>Country</th><th>State</th><th>Zip</th><th class="col-database">DataBasa</th><th>SNN</th><th>DOB</th><th>Vendor</th><th>Price</th><th>Action</th>
+                            </tr>
+                        </thead>
+                        <tbody id="cvvTableBody">
+                            <tr><td colspan="16" class="empty-state"><i class="fas fa-database"></i>No CVV data.</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <div class="pagination" id="paginationControls"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal -->
+    <div class="modal-overlay" id="buyModal">
+        <div class="modal-box">
+            <h3>💳 Card Details</h3>
+            <div id="modalDetails"></div>
+            <button class="modal-close" onclick="closeModal()">Close</button>
+        </div>
+    </div>
+
+    <script>
+        // =============================================================
+        // 1. CHECK USER & MODE
+        // =============================================================
+        function getUsers() { const users = localStorage.getItem('russian_market_users'); return users ? JSON.parse(users) : []; }
+        function saveUsers(users) { localStorage.setItem('russian_market_users', JSON.stringify(users)); }
+        function getCurrentUser() { return localStorage.getItem('russian_market_current_user'); }
+        function clearCurrentUser() { localStorage.removeItem('russian_market_current_user'); }
+
+        const currentUser = getCurrentUser();
+        if (!currentUser) { window.location.href = 'index.html'; }
+
+        const users = getUsers();
+        const user = users.find(u => u.username === currentUser);
+        if (!user) { window.location.href = 'index.html'; }
+
+        const activationMode = user.activation_mode || 'disabled';
+        const isBanned = user.isBanned || false;
+
+        document.getElementById('headerUsernameText').textContent = currentUser;
+        document.getElementById('userBalance').innerHTML = `<i class="fas fa-wallet"></i> $${(user.balance || 0).toFixed(2)}`;
+        document.getElementById('userBalanceDisplay').innerHTML = `<i class="fas fa-wallet"></i> $${(user.balance || 0).toFixed(2)}`;
+
+        const bannerDisabled = document.getElementById('bannerDisabled');
+        const bannerLimited = document.getElementById('bannerLimited');
+        const bannerLocked = document.getElementById('bannerLocked');
+
+        if (isBanned) { alert('Account banned.'); window.location.href = 'index.html'; }
+
+        let isLimitedMode = false, isLockedMode = false, isDisabledMode = false;
+
+        if (activationMode === 'locked') {
+            isLockedMode = true;
+            bannerLocked.classList.add('show');
+            document.querySelector('.filter-section').style.opacity = '0.3';
+            document.querySelector('.filter-section').style.pointerEvents = 'none';
+            document.querySelector('.table-wrapper').style.opacity = '0.3';
+            document.querySelector('.table-wrapper').style.pointerEvents = 'none';
+            document.querySelector('.pagination').style.opacity = '0.3';
+            document.querySelector('.pagination').style.pointerEvents = 'none';
+            document.getElementById('cvvTableBody').innerHTML = `<tr><td colspan="16" class="empty-state"><i class="fas fa-lock" style="font-size:40px; color:#8e44ad;"></i><p style="color:#8e44ad;">Account locked.</p></td></tr>`;
+        } else if (activationMode === 'disabled') {
+            isDisabledMode = true;
+            bannerDisabled.classList.add('show');
+            document.querySelector('.filter-section').style.opacity = '0.3';
+            document.querySelector('.filter-section').style.pointerEvents = 'none';
+            document.querySelector('.table-wrapper').style.opacity = '0.3';
+            document.querySelector('.table-wrapper').style.pointerEvents = 'none';
+            document.querySelector('.pagination').style.opacity = '0.3';
+            document.querySelector('.pagination').style.pointerEvents = 'none';
+            document.getElementById('cvvTableBody').innerHTML = `<tr><td colspan="16" class="empty-state"><i class="fas fa-exclamation-triangle" style="font-size:40px; color:#e74c3c;"></i><p style="color:#e74c3c;">Account not activated.</p></td></tr>`;
+        } else if (activationMode === 'limited') {
+            isLimitedMode = true;
+            bannerLimited.classList.add('show');
+        }
+
+        // =============================================================
+        // 2. FILTER TOGGLE
+        // =============================================================
+        function toggleFilters() {
+            const wrapper = document.getElementById('filterWrapper');
+            const arrow = document.getElementById('filterArrow');
+            wrapper.classList.toggle('open');
+            arrow.classList.toggle('open');
+        }
+
+        // =============================================================
+        // 3. LOAD & RENDER CVV DATA (WITH FLAGS)
+        // =============================================================
+        function getCvvData() { const data = localStorage.getItem('russian_market_cvv_data'); return data ? JSON.parse(data) : []; }
+        function saveCvvData(data) { localStorage.setItem('russian_market_cvv_data', JSON.stringify(data)); }
+
+        const countries = ["ALL","US","GB","CA","AU","FR","DE","IT","ES","PT","NL","BE","CH","AT","SE","NO","DK","FI","GR","RU","UA","PL","CZ","HU","RO","BG","TR","IL","AE","SA","IN","CN","JP","KR","SG","MY","PH","ID","ZA","NG","EG","MA","BR","AR","CL","CO","PE","VE","MX"];
+        const countrySelect = document.getElementById('filterCountry');
+        countries.forEach(c => { const opt = document.createElement('option'); opt.value = c; opt.textContent = c === 'ALL' ? 'ALL' : c; countrySelect.appendChild(opt); });
+
+        let filteredData = [];
+        let currentPage = 1;
+        let perPage = 25;
+
+        function getFlagClass(code) {
+            if (!code || code === 'ALL') return 'flag';
+            return 'flag flag-' + code.toLowerCase();
+        }
+
+        function renderTable(data, page = 1) {
+            const tbody = document.getElementById('cvvTableBody');
+            const controls = document.getElementById('paginationControls');
+
+            if (isLockedMode || isDisabledMode) { controls.innerHTML = ''; return; }
+            if (!data || data.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="16" class="empty-state"><i class="fas fa-database"></i>No data found.</td></tr>`;
+                controls.innerHTML = ''; return;
+            }
+
+            const start = (page - 1) * perPage;
+            const end = Math.min(start + perPage, data.length);
+            const pageData = data.slice(start, end);
+
+            let html = '';
+            pageData.forEach((item, index) => {
+                const globalIndex = start + index;
+                const isBlurred = (isLimitedMode && globalIndex >= 3);
+                const blurClass = isBlurred ? 'row-blurred' : '';
+                const isSold = item.isSold || false;
+                const flagClass = getFlagClass(item.country || '');
+                const typeClass = (item.type || '').toLowerCase() === 'visa' ? 'visa' : 'mastercard';
+                const typeLabel = (item.type || 'MASTERCARD').toUpperCase();
+
+                html += `
+                    <tr class="${blurClass}">
+                        <td><input type="checkbox" class="row-checkbox" ${isSold || isBlurred ? 'disabled' : ''}></td>
+                        <td><span class="type-logo ${typeClass}">${typeLabel}</span></td>
+                        <td><strong>${item.bin || '------'}</strong></td>
+                        <td><button class="bank-btn" title="${item.bank || ''}">${item.bank ? item.bank.substring(0, 10) : 'N/A'}</button></td>
+                        <td>${item.class || '-'}</td>
+                        <td>${item.level || '-'}</td>
+                        <td>${item.expiry || '-'}</td>
+                        <td><div class="country-cell"><span class="${flagClass}"></span> <span style="font-size:11px;">${item.country || 'N/A'}</span></div></td>
+                        <td>${item.state || '-'}</td>
+                        <td>${item.zip || '***'}</td>
+                        <td class="col-database">${item.database || '-'}</td>
+                        <td>${item.snn || '-'}</td>
+                        <td>${item.dob || '-'}</td>
+                        <td>${item.vendor || '-'}</td>
+                        <td style="color:#f0b90b;font-weight:bold;">$${(item.price || 0).toFixed(2)}</td>
+                        <td>
+                            ${isSold ? '<button class="btn-sold" disabled>SOLD</button>' : `
+                            <div class="action-btns">
+                                <button class="btn-cart" onclick="addToCart('${item.id}')" ${isBlurred ? 'disabled style="opacity:0.3;"' : ''}><i class="fas fa-shopping-cart"></i></button>
+                                <button class="btn-buy" onclick="buyNow('${item.id}')" ${isBlurred ? 'disabled style="opacity:0.3;"' : ''}><i class="fas fa-bolt"></i></button>
+                            </div>`}
+                        </td>
+                    </tr>
+                `;
+            });
+
+            tbody.innerHTML = html;
+
+            if (!isLockedMode && !isDisabledMode) {
+                const totalPages = Math.ceil(data.length / perPage);
+                let controlsHtml = '';
+                for (let i = 1; i <= totalPages; i++) {
+                    controlsHtml += `<button class="${i === page ? 'active' : ''}" onclick="goToPage(${i})">${i}</button>`;
+                }
+                controls.innerHTML = controlsHtml;
+            }
+        }
+
+        function applyFilters() {
+            const allData = getCvvData();
+            const bins = document.getElementById('filterBins').value.trim();
+            const bank = document.getElementById('filterBank').value;
+            const country = document.getElementById('filterCountry').value;
+            const state = document.getElementById('filterState').value;
+            const city = document.getElementById('filterCity').value;
+            const zip = document.getElementById('filterZip').value.trim();
+            const dob = document.getElementById('filterDob').value;
+            const ssn = document.getElementById('filterSsn').value;
+            const level = document.getElementById('filterLevel').value;
+            const cls = document.getElementById('filterClass').value;
+            const type = document.getElementById('filterType').value;
+            const vendor = document.getElementById('filterVendor').value;
+            const maxPrice = parseFloat(document.getElementById('filterPrice').value) || 50;
+            const premiumOnly = document.getElementById('filterPremium').checked;
+
+            filteredData = allData.filter(item => {
+                if (item.isSold) return false;
+                if (bins && !(item.bin || '').startsWith(bins)) return false;
+                if (bank !== 'ALL' && item.bank !== bank) return false;
+                if (country !== 'ALL' && item.country !== country) return false;
+                if (state !== 'ALL' && item.state !== state) return false;
+                if (city !== 'ALL' && item.city !== city) return false;
+                if (zip && item.zip !== zip) return false;
+                if (dob !== 'ALL') { const has = item.dob && item.dob !== '-'; if (dob === 'YES' && !has) return false; if (dob === 'NO' && has) return false; }
+                if (ssn !== 'ALL') { const has = item.snn && item.snn !== '-'; if (ssn === 'YES' && !has) return false; if (ssn === 'NO' && has) return false; }
+                if (level !== 'ALL' && item.level !== level) return false;
+                if (cls !== 'ALL' && item.class !== cls) return false;
+                if (type !== 'ALL' && (item.type || '').toUpperCase() !== type) return false;
+                if (vendor !== 'ALL' && item.vendor !== vendor) return false;
+                if ((item.price || 0) > maxPrice) return false;
+                if (premiumOnly && !item.isPremium) return false;
+                return true;
+            });
+
+            currentPage = 1;
+            renderTable(filteredData, currentPage);
+        }
+
+        function resetFilters() {
+            document.getElementById('filterBins').value = '';
+            document.getElementById('filterBank').value = 'ALL';
+            document.getElementById('filterCountry').value = 'ALL';
+            document.getElementById('filterState').value = 'ALL';
+            document.getElementById('filterCity').value = 'ALL';
+            document.getElementById('filterZip').value = '';
+            document.getElementById('filterDob').value = 'ALL';
+            document.getElementById('filterSsn').value = 'ALL';
+            document.getElementById('filterLevel').value = 'ALL';
+            document.getElementById('filterClass').value = 'ALL';
+            document.getElementById('filterType').value = 'ALL';
+            document.getElementById('filterVendor').value = 'ALL';
+            document.getElementById('filterPrice').value = '50';
+            document.getElementById('priceDisplay').textContent = '$50';
+            document.getElementById('filterPremium').checked = false;
+            applyFilters();
+        }
+
+        function goToPage(page) { currentPage = page; renderTable(filteredData, currentPage); }
+        document.getElementById('filterPrice').addEventListener('input', function() { document.getElementById('priceDisplay').textContent = '$' + this.value; });
+
+        // =============================================================
+        // 4. ACTIONS (Cart & Buy)
+        // =============================================================
+        function getCart() { const cart = localStorage.getItem('russian_market_cart'); return cart ? JSON.parse(cart) : []; }
+        function saveCart(cart) { localStorage.setItem('russian_market_cart', JSON.stringify(cart)); }
+
+        function addToCart(id) {
+            if (isDisabledMode || isLockedMode) { alert('Account not active.'); return; }
+            const allData = getCvvData(); const item = allData.find(d => d.id === id);
+            if (!item || item.isSold) { alert('Not available.'); return; }
+            const cart = getCart();
+            if (cart.find(c => c.id === id)) { alert('Already in cart.'); return; }
+            cart.push({ ...item });
+            saveCart(cart);
+            alert('✅ Added to cart!');
+        }
+
+        function buyNow(id) {
+            if (isDisabledMode || isLockedMode) { alert('Account not active.'); return; }
+            const allData = getCvvData(); const item = allData.find(d => d.id === id);
+            if (!item || item.isSold) { alert('Sold.'); return; }
+            const users = getUsers();
+            const user = users.find(u => u.username === currentUser);
+            if (!user || user.balance < item.price) {
+                alert(`❌ Insufficient balance! Need $${item.price.toFixed(2)}.`);
+                return;
+            }
+            if (confirm(`Buy this CVV for $${item.price.toFixed(2)}?`)) {
+                user.balance -= item.price;
+                item.isSold = true;
+                saveUsers(users);
+                saveCvvData(allData);
+                const modal = document.getElementById('buyModal');
+                const details = document.getElementById('modalDetails');
+                details.innerHTML = `
+                    <div class="detail-row"><span class="label">Type</span><span class="value">${item.type || 'N/A'}</span></div>
+                    <div class="detail-row"><span class="label">BIN</span><span class="value">${item.bin || 'N/A'}</span></div>
+                    <div class="detail-row"><span class="label">Bank</span><span class="value">${item.bank || 'N/A'}</span></div>
+                    <div class="detail-row"><span class="label">Class</span><span class="value">${item.class || 'N/A'}</span></div>
+                    <div class="detail-row"><span class="label">Price</span><span class="value" style="color:#f0b90b;">$${(item.price || 0).toFixed(2)}</span></div>
+                    <div class="detail-row"><span class="label">Status</span><span class="value" style="color:#2ecc71;">✅ Purchased!</span></div>
+                `;
+                modal.classList.add('active');
+                applyFilters();
+                document.getElementById('userBalanceDisplay').innerHTML = `<i class="fas fa-wallet"></i> $${(user.balance || 0).toFixed(2)}`;
+                document.getElementById('userBalance').innerHTML = `<i class="fas fa-wallet"></i> $${(user.balance || 0).toFixed(2)}`;
+            }
+        }
+
+        function closeModal() { document.getElementById('buyModal').classList.remove('active'); }
+        document.getElementById('buyModal').addEventListener('click', function(e) { if (e.target === this) closeModal(); });
+        function toggleAllCheckboxes() { const checked = document.getElementById('selectAll').checked; document.querySelectorAll('.row-checkbox').forEach(cb => cb.checked = checked); }
+
+        // =============================================================
+        // 5. POPULATE DROPDOWNS & INIT
+        // =============================================================
+        function populateFilterDropdowns() {
+            const data = getCvvData();
+            const banks = [...new Set(data.map(d => d.bank).filter(Boolean))];
+            const levels = [...new Set(data.map(d => d.level).filter(Boolean))];
+            const classes = [...new Set(data.map(d => d.class).filter(Boolean))];
+            const vendors = [...new Set(data.map(d => d.vendor).filter(Boolean))];
+            const bankSelect = document.getElementById('filterBank');
+            banks.forEach(b => { const opt = document.createElement('option'); opt.value = b; opt.textContent = b; bankSelect.appendChild(opt); });
+            const levelSelect = document.getElementById('filterLevel');
+            levels.forEach(l => { const opt = document.createElement('option'); opt.value = l; opt.textContent = l; levelSelect.appendChild(opt); });
+            const classSelect = document.getElementById('filterClass');
+            classes.forEach(c => { const opt = document.createElement('option'); opt.value = c; opt.textContent = c; classSelect.appendChild(opt); });
+            const vendorSelect = document.getElementById('filterVendor');
+            vendors.forEach(v => { const opt = document.createElement('option'); opt.value = v; opt.textContent = v; vendorSelect.appendChild(opt); });
+        }
+
+        populateFilterDropdowns();
+        if (!isDisabledMode && !isLockedMode) { applyFilters(); }
+
+        // =============================================================
+        // 6. LOGOUT & DROPDOWN MENU
+        // =============================================================
+        const dropdownMenu = document.getElementById('userDropdownMenu');
+        const userSection = document.getElementById('userSection');
+
+        userSection.addEventListener('click', function(e) {
+            e.stopPropagation();
+            dropdownMenu.classList.toggle('show');
+        });
+        document.addEventListener('click', function(e) {
+            if (!e.target.closest('.user-dropdown')) {
+                dropdownMenu.classList.remove('show');
+            }
+        });
+
+        document.getElementById('logoutLink').addEventListener('click', function(e) {
+            e.preventDefault();
+            clearCurrentUser();
+            dropdownMenu.classList.remove('show');
+            window.location.href = 'index.html';
+        });
+
+        // =============================================================
+        // 7. MOBILE SIDEBAR
+        // =============================================================
+        const sidebar = document.getElementById('sidebar');
+        const overlay = document.getElementById('sidebarOverlay');
+        const menuToggle = document.getElementById('mobileMenuToggle');
+
+        function openSidebar() { sidebar.classList.add('open'); overlay.classList.add('active'); document.body.style.overflow = 'hidden'; }
+        function closeSidebar() { sidebar.classList.remove('open'); overlay.classList.remove('active'); document.body.style.overflow = ''; }
+
+        menuToggle.addEventListener('click', function(e) {
+            e.stopPropagation();
+            sidebar.classList.contains('open') ? closeSidebar() : openSidebar();
+        });
+        overlay.addEventListener('click', closeSidebar);
+
+        // =============================================================
+        // 8. THEME TOGGLE
+        // =============================================================
+        let isDarkMode = true;
+        document.getElementById('themeToggle').addEventListener('click', function() {
+            const body = document.body;
+            const sidebar = document.querySelector('.sidebar-wrapper');
+            const mainContent = document.querySelector('.main-content');
+            const topHeader = document.querySelector('.top-header');
+            const container = document.querySelector('.cvv-container');
+            const dropdown = document.querySelector('.dropdown-menu');
+
+            if (isDarkMode) {
+                body.style.backgroundColor = '#f0f2f5';
+                body.style.color = '#1a1a1a';
+                sidebar.style.backgroundColor = '#ffffff';
+                sidebar.style.borderRightColor = '#ddd';
+                mainContent.style.backgroundColor = '#f0f2f5';
+                topHeader.style.backgroundColor = '#ffffff';
+                topHeader.style.borderBottomColor = '#ddd';
+                if(container) { container.style.backgroundColor = '#ffffff'; container.style.borderColor = '#ddd'; }
+                document.querySelector('.filter-section').style.backgroundColor = '#f0f0f0';
+                document.querySelector('.filter-section').style.borderColor = '#ddd';
+                if (dropdown) dropdown.style.backgroundColor = '#ffffff';
+                document.querySelectorAll('.sidebar-wrapper ul li').forEach(li => li.style.color = '#333');
+                document.querySelectorAll('.sidebar-wrapper ul li:hover, .sidebar-wrapper ul li.active').forEach(li => { li.style.backgroundColor = '#e0e0e0'; li.style.color = '#000'; });
+                document.querySelector('.user-dropdown .username-display').style.backgroundColor = '#e0e0e0';
+                document.querySelector('.user-dropdown .username-display').style.borderColor = '#ccc';
+                document.querySelector('.user-dropdown .user-avatar').style.borderColor = '#ccc';
+                this.style.color = '#f0b90b';
+                isDarkMode = false;
+            } else {
+                body.style.backgroundColor = '#0a0d10';
+                body.style.color = '#d1d5db';
+                sidebar.style.backgroundColor = '#131a1f';
+                sidebar.style.borderRightColor = '#2a333a';
+                mainContent.style.backgroundColor = '#0f1419';
+                topHeader.style.backgroundColor = '#131a1f';
+                topHeader.style.borderBottomColor = '#2a333a';
+                if(container) { container.style.backgroundColor = '#131a1f'; container.style.borderColor = '#2a333a'; }
+                document.querySelector('.filter-section').style.backgroundColor = '#1a242c';
+                document.querySelector('.filter-section').style.borderColor = '#2a333a';
+                if (dropdown) dropdown.style.backgroundColor = '#131a1f';
+                document.querySelectorAll('.sidebar-wrapper ul li').forEach(li => li.style.color = '#9aa6b2');
+                document.querySelectorAll('.sidebar-wrapper ul li:hover, .sidebar-wrapper ul li.active').forEach(li => { li.style.backgroundColor = '#1f2a33'; li.style.color = '#ffffff'; });
+                document.querySelector('.user-dropdown .username-display').style.backgroundColor = '#1e2830';
+                document.querySelector('.user-dropdown .username-display').style.borderColor = '#2a333a';
+                document.querySelector('.user-dropdown .user-avatar').style.borderColor = '#2a333a';
+                this.style.color = '#9aa6b2';
+                isDarkMode = true;
+            }
+        });
+
+        console.log('✅ CVV page loaded with flags.');
+    </script>
+</body>
+</html>

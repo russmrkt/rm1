@@ -1,0 +1,845 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Russian Market</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <style>
+        /* ===== FLAG SPRITES ===== */
+        .flag{display:inline-block;width:32px;height:32px;background:url('https://cdn.jsdelivr.net/npm/flag-sprite@1.0.0/flags.png') no-repeat;background-size:512px 512px}
+        .flag.flag-us{background-position:-416px -416px}
+        .flag.flag-gb{background-position:-288px -128px}
+        .flag.flag-fr{background-position:-224px -128px}
+        .flag.flag-de{background-position:-128px -96px}
+        .flag.flag-it{background-position:-224px -192px}
+        .flag.flag-es{background-position:-480px -96px}
+        .flag.flag-ru{background-position:-192px -352px}
+        .flag.flag-ae{background-position:-32px 0}
+        .flag.flag-sa{background-position:-256px -352px}
+        .flag.flag-in{background-position:-96px -192px}
+        .flag.flag-cn{background-position:-384px -64px}
+        .flag.flag-jp{background-position:-352px -192px}
+        .flag.flag-br{background-position:-416px -32px}
+        .flag.flag-mx{background-position:-192px -288px}
+        .flag.flag-ca{background-position:-96px -64px}
+        .flag.flag-au{background-position:-384px 0}
+        .flag.flag-za{background-position:-352px -448px}
+        .flag.flag-eg{background-position:-384px -96px}
+        .flag.flag-ng{background-position:-416px -288px}
+        .flag.flag-tr{background-position:-192px -416px}
+        .flag.flag-il{background-position:-32px -192px}
+        .flag.flag-ua{background-position:-352px -416px}
+        .flag.flag-pl{background-position:-384px -320px}
+        .flag.flag-ro{background-position:-128px -352px}
+        .flag.flag-gr{background-position:-96px -160px}
+        .flag.flag-nl{background-position:-480px -288px}
+        .flag.flag-be{background-position:-96px -32px}
+        .flag.flag-ch{background-position:-224px -64px}
+        .flag.flag-at{background-position:-352px 0}
+        .flag.flag-se{background-position:-384px -352px}
+        .flag.flag-no{background-position:0 -320px}
+        .flag.flag-dk{background-position:-192px -96px}
+        .flag.flag-fi{background-position:-64px -128px}
+        .flag.flag-pt{background-position:0 -352px}
+        .flag.flag-ie{background-position:0 -192px}
+        .flag.flag-nz{background-position:-128px -320px}
+        .flag.flag-sg{background-position:-416px -352px}
+        .flag.flag-my{background-position:-224px -288px}
+        .flag.flag-ph{background-position:-320px -320px}
+        .flag.flag-id{background-position:-480px -160px}
+        .flag.flag-th{background-position:-480px -384px}
+        .flag.flag-vn{background-position:-160px -448px}
+        .flag.flag-kr{background-position:-96px -224px}
+        .flag.flag-tw{background-position:-288px -416px}
+        .flag.flag-hk{background-position:-288px -160px}
+        .flag.flag-kw{background-position:-128px -224px}
+        .flag.flag-qa{background-position:-96px -352px}
+        .flag.flag-bh{background-position:-192px -32px}
+        .flag.flag-om{background-position:-160px -320px}
+        .flag.flag-ye{background-position:-288px -448px}
+        .flag.flag-iq{background-position:-128px -192px}
+        .flag.flag-sy{background-position:-288px -384px}
+        .flag.flag-lb{background-position:-256px -224px}
+        .flag.flag-jo{background-position:-320px -192px}
+        .flag.flag-ps{background-position:-480px -320px}
+        .flag.flag-ar{background-position:-288px 0}
+        .flag.flag-cl{background-position:-320px -64px}
+        .flag.flag-co{background-position:-416px -64px}
+        .flag.flag-pe{background-position:-224px -320px}
+        .flag.flag-ve{background-position:-64px -448px}
+        .flag.flag-uy{background-position:-448px -416px}
+        .flag.flag-py{background-position:-64px -352px}
+        .flag.flag-bo{background-position:-384px -32px}
+        .flag.flag-ec{background-position:-320px -96px}
+        .flag.flag-cr{background-position:-448px -64px}
+        .flag.flag-pa{background-position:-192px -320px}
+        .flag.flag-gt{background-position:-160px -160px}
+        .flag.flag-hn{background-position:-320px -160px}
+        .flag.flag-ni{background-position:-448px -288px}
+        .flag.flag-sv{background-position:-256px -384px}
+        .flag.flag-tt{background-position:-224px -416px}
+        .flag.flag-jm{background-position:-288px -192px}
+        .flag.flag-bs{background-position:-448px -32px}
+        .flag.flag-bb{background-position:-32px -32px}
+        .flag.flag-dm{background-position:-224px -96px}
+        .flag.flag-gd{background-position:-320px -128px}
+        .flag.flag-ht{background-position:-384px -160px}
+        .flag.flag-kn{background-position:-32px -224px}
+        .flag.flag-lc{background-position:-288px -224px}
+        .flag.flag-vc{background-position:-32px -448px}
+        .flag.flag-ai{background-position:-128px 0}
+        .flag.flag-ky{background-position:-160px -224px}
+        .flag.flag-ms{background-position:-32px -288px}
+        .flag.flag-vi{background-position:-128px -448px}
+        .flag.flag-vg{background-position:-96px -448px}
+        .flag.flag-aw{background-position:-416px 0}
+        .flag.flag-an{background-position:-224px 0}
+        .flag.flag-ag{background-position:-96px 0}
+        .flag.flag-bz{background-position:-64px -64px}
+        .flag.flag-mq{background-position:-480px -256px}
+        .flag.flag-gf{background-position:-384px -128px}
+        .flag.flag-gp{background-position:-96px -160px}
+        .flag.flag-ic{background-position:-448px -160px}
+        .flag.flag-ea{background-position:-320px -96px}
+        .flag.flag-eu{background-position:-32px -128px}
+        .flag.flag-un{background-position:-416px -416px}
+        .flag.flag-{background:url('data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSI2NCIgaGVpZ2h0PSI2NCIgdmlld0JveD0iMCAwIDY0IDY0Ij48cmVjdCB4PSIwIiB5PSIwIiB3aWR0aD0iNjQiIGhlaWdodD0iNjQiIGZpbGw9IiNlZGVkZWQiLz48Y2lyY2xlIGN4PSIzMiIgY3k9IjMyIiByPSI4IiBmaWxsPSIjY2NjIi8+PC9zdmc+') no-repeat !important;margin-top:1px;margin-bottom:-1px}
+
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
+        body { background-color: #0a0d10; color: #d1d5db; min-height: 100vh; }
+
+        /* ===== AUTH PAGE ===== */
+        #authPage { width: 100%; display: flex; justify-content: center; align-items: center; min-height: 100vh; padding: 20px; }
+        .auth-container { background-color: #141a1f; padding: 30px 25px; border-radius: 12px; width: 100%; max-width: 420px; border: 1px solid #2a333a; box-shadow: 0 10px 30px rgba(0,0,0,0.8); }
+        .auth-container .logo { text-align: center; margin-bottom: 10px; }
+        .auth-container .logo img { max-height: 45px; }
+        .auth-container h1 { color: #f0b90b; font-size: 22px; text-align: center; margin-bottom: 5px; letter-spacing: 2px; }
+        .auth-container .subtitle { color: #6b7a88; text-align: center; font-size: 12px; margin-bottom: 20px; }
+        .auth-container .warning { background: #1e2830; color: #e74c3c; padding: 10px; border-radius: 6px; font-size: 12px; text-align: center; margin-bottom: 25px; border: 1px solid #e74c3c33; }
+        .tabs { display: flex; margin-bottom: 25px; border-bottom: 1px solid #2a333a; }
+        .tabs button { flex: 1; background: transparent; border: none; padding: 12px 10px; color: #6b7a88; font-size: 15px; font-weight: bold; cursor: pointer; transition: 0.3s; border-bottom: 2px solid transparent; }
+        .tabs button.active { color: #f0b90b; border-bottom-color: #f0b90b; }
+        .tabs button:hover { color: #fff; }
+        .auth-form { display: none; flex-direction: column; }
+        .auth-form.active { display: flex; }
+        .auth-form label { color: #d1d5db; font-size: 13px; display: block; margin-bottom: 5px; }
+        .auth-form input[type="text"], .auth-form input[type="password"] { width: 100%; padding: 12px 15px; margin-bottom: 15px; background: #1e2830; border: 1px solid #2a333a; border-radius: 8px; color: #fff; font-size: 15px; outline: none; }
+        .auth-form input:focus { border-color: #f0b90b; }
+        .auth-btn { width: 100%; padding: 14px; background: #f0b90b; color: #0b0e11; border: none; border-radius: 8px; font-size: 16px; font-weight: bold; cursor: pointer; transition: 0.3s; margin-top: 5px; }
+        .auth-btn:hover { background: #d4a30a; }
+        .auth-error { color: #e74c3c; font-size: 13px; text-align: center; margin-top: 10px; display: none; }
+        .auth-success { color: #2ecc71; font-size: 13px; text-align: center; margin-top: 10px; display: none; }
+
+        /* ===== PIN POPUP ===== */
+        .pin-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.85); justify-content: center; align-items: center; z-index: 9999; backdrop-filter: blur(4px); padding: 20px; }
+        .pin-overlay.active { display: flex; }
+        .pin-box { background: #141a1f; padding: 30px 25px; border-radius: 12px; border: 1px solid #2a333a; max-width: 400px; width: 100%; text-align: center; }
+        .pin-box h3 { color: #f0b90b; font-size: 20px; margin-bottom: 10px; }
+        .pin-box p { color: #6b7a88; font-size: 14px; margin-bottom: 20px; }
+        .pin-box input[type="password"] { width: 100%; padding: 14px; background: #1e2830; border: 1px solid #2a333a; border-radius: 8px; color: #fff; font-size: 22px; text-align: center; letter-spacing: 10px; outline: none; margin-bottom: 20px; }
+        .pin-box input:focus { border-color: #f0b90b; }
+        .pin-box .pin-error { color: #e74c3c; font-size: 13px; margin-bottom: 10px; display: none; }
+        .pin-box .pin-btn { width: 100%; padding: 14px; background: #f0b90b; color: #0b0e11; border: none; border-radius: 8px; font-size: 16px; font-weight: bold; cursor: pointer; transition: 0.3s; }
+        .pin-box .pin-btn:hover { background: #d4a30a; }
+
+        /* =============================================
+           DASHBOARD - HEADER FIXED + SIDEBAR
+           ============================================= */
+        #dashboardPage { display: none; width: 100%; min-height: 100vh; background: #0f1419; }
+
+        /* ===== TOP HEADER (FIXED) ===== */
+        .top-header {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            z-index: 1000;
+            background: #131a1f;
+            border-bottom: 1px solid #2a333a;
+            padding: 8px 16px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            height: 50px;
+        }
+        .top-header .logo img { max-height: 30px; }
+
+        /* LEFT SECTION: Menu Toggle + Logo + User Dropdown (SINGLE USERNAME) */
+        .top-header .left-section {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+        #mobileMenuToggle {
+            display: none;
+            font-size: 18px;
+            color: #f0b90b;
+            cursor: pointer;
+            padding: 4px;
+            background: transparent;
+            border: none;
+        }
+
+        .user-dropdown {
+            position: relative;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+        .user-dropdown .user-avatar { width: 28px; height: 28px; border-radius: 50%; object-fit: cover; border: 1px solid #2a333a; }
+        .user-dropdown .username-display {
+            color: #f0b90b;
+            font-weight: bold;
+            font-size: 13px;
+            padding: 4px 8px;
+            border-radius: 20px;
+            border: 1px solid #2a333a;
+            background: #1e2830;
+            transition: 0.3s;
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+        .user-dropdown .username-display:hover { background: #2a333a; }
+        .user-dropdown .dropdown-menu {
+            display: none;
+            position: absolute;
+            top: 100%;
+            left: 0;
+            background: #131a1f;
+            border: 1px solid #2a333a;
+            border-radius: 8px;
+            min-width: 140px;
+            padding: 5px 0;
+            z-index: 1001;
+            box-shadow: 0 8px 16px rgba(0,0,0,0.5);
+        }
+        .user-dropdown .dropdown-menu.show { display: block; }
+        .user-dropdown .dropdown-menu a {
+            display: block;
+            padding: 8px 16px;
+            color: #d1d5db;
+            text-decoration: none;
+            transition: 0.3s;
+            font-size: 13px;
+        }
+        .user-dropdown .dropdown-menu a i { margin-right: 8px; width: 16px; font-size: 13px; }
+        .user-dropdown .dropdown-menu a:hover { background: #1f2a33; color: #f0b90b; }
+
+        /* RIGHT SECTION: Icons (REVERSED ORDER) */
+        .top-header .nav-icons {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            flex-direction: row-reverse;
+        }
+        .top-header .nav-icons i {
+            font-size: 16px;
+            color: #9aa6b2;
+            cursor: pointer;
+            transition: 0.3s;
+            padding: 4px;
+        }
+        .top-header .nav-icons i:hover { color: #f0b90b; }
+        .top-header .nav-icons .balance {
+            background: #1e2830;
+            padding: 4px 10px;
+            border-radius: 20px;
+            color: #f0b90b;
+            font-weight: bold;
+            font-size: 12px;
+            border: 1px solid #2a333a;
+            white-space: nowrap;
+        }
+
+        /* ===== SIDEBAR (NO USERNAME HERE - ONLY LINKS) ===== */
+        .sidebar-wrapper {
+            position: fixed;
+            top: 50px;
+            left: 0;
+            bottom: 0;
+            width: 200px;
+            background: #131a1f;
+            border-right: 1px solid #2a333a;
+            overflow-y: auto;
+            z-index: 999;
+            padding: 12px 10px;
+        }
+        .sidebar-wrapper ul { list-style: none; }
+        .sidebar-wrapper ul li {
+            padding: 8px 10px;
+            margin: 2px 0;
+            border-radius: 6px;
+            transition: 0.3s;
+            color: #9aa6b2;
+            font-size: 13px;
+            text-align: left;
+        }
+        .sidebar-wrapper ul li i { margin-right: 10px; width: 18px; font-size: 13px; }
+        .sidebar-wrapper ul li:hover, .sidebar-wrapper ul li.active { background: #1f2a33; color: #fff; }
+        .sidebar-wrapper ul li a { color: inherit; text-decoration: none; display: block; }
+
+        /* ===== MAIN CONTENT ===== */
+        .main-content {
+            margin-left: 200px;
+            margin-top: 50px;
+            padding: 16px 20px;
+            background: #0f1419;
+            min-height: calc(100vh - 50px);
+        }
+
+        /* ===== OVERLAY FOR MOBILE ===== */
+        .sidebar-overlay { display: none; position: fixed; top: 50px; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.6); z-index: 998; }
+        .sidebar-overlay.active { display: block; }
+
+        /* ===== BANNERS ===== */
+        .banner { border-radius: 10px; padding: 12px 16px; margin-bottom: 15px; display: none; align-items: center; gap: 12px; flex-wrap: wrap; }
+        .banner.show { display: flex; }
+        .banner i { font-size: 20px; }
+        .banner .text { flex: 1; font-size: 14px; font-weight: 500; }
+        .banner .text strong { color: #f0b90b; }
+        .banner .btn-deposit { background: #f0b90b; color: #0b0e11; border: none; padding: 6px 18px; border-radius: 6px; font-weight: bold; cursor: pointer; transition: 0.3s; font-size: 13px; text-decoration: none; display: inline-block; }
+        .banner .btn-deposit:hover { background: #d4a30a; }
+        .banner-disabled { background: #e74c3c22; border: 2px solid #e74c3c; }
+        .banner-disabled i { color: #e74c3c; }
+        .banner-disabled .text { color: #e74c3c; }
+        .banner-limited { background: #f39c1222; border: 2px solid #f39c12; }
+        .banner-limited i { color: #f39c12; }
+        .banner-limited .text { color: #f39c12; }
+        .banner-locked { background: #8e44ad22; border: 2px solid #8e44ad; }
+        .banner-locked i { color: #8e44ad; }
+        .banner-locked .text { color: #8e44ad; }
+
+        .page-title { color: #f0b90b; font-size: 20px; font-weight: bold; margin-bottom: 15px; border-left: 4px solid #f0b90b; padding-left: 12px; }
+        .news-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; }
+        .news-card { background: #131a1f; border: 1px solid #2a333a; border-radius: 10px; padding: 16px; transition: 0.3s; }
+        .news-card:hover { border-color: #f0b90b; }
+        .news-card .card-header { color: #f0b90b; font-size: 15px; font-weight: bold; margin-bottom: 10px; padding-bottom: 8px; border-bottom: 1px solid #2a333a; }
+        .news-card .card-header span { color: #6b7a88; font-weight: normal; font-size: 12px; }
+        .news-card .attention-text { color: #e74c3c; font-weight: bold; margin-bottom: 8px; font-size: 13px; }
+        .news-card p { color: #d1d5db; line-height: 1.6; font-size: 13px; margin-bottom: 10px; }
+        .news-card .links-list { background: #1a242c; padding: 10px 12px; border-radius: 6px; font-family: monospace; font-size: 11px; direction: ltr; text-align: left; color: #9aa6b2; word-break: break-all; }
+        .news-card .links-list .web-link { color: #f0b90b; }
+        .news-card .links-list .tor-link { color: #6b7a88; }
+        .news-card .notice-text { color: #d1d5db; line-height: 1.6; font-size: 13px; }
+
+        .footer-links { margin-top: 25px; padding-top: 15px; border-top: 1px solid #2a333a; display: flex; justify-content: center; gap: 25px; color: #6b7a88; font-size: 13px; flex-wrap: wrap; }
+        .footer-links a { color: #6b7a88; text-decoration: none; transition: 0.3s; padding: 4px 8px; }
+        .footer-links a:hover { color: #f0b90b; }
+
+        /* ===== RESPONSIVE ===== */
+        @media (max-width: 768px) {
+            .sidebar-wrapper { transform: translateX(-110%); transition: transform 0.3s ease; width: 240px; }
+            .sidebar-wrapper.open { transform: translateX(0); }
+            .main-content { margin-left: 0; padding: 12px 10px; }
+            .top-header { padding: 6px 10px; height: 44px; }
+            .top-header .logo img { max-height: 24px; }
+            .top-header .nav-icons .balance { font-size: 10px; padding: 2px 8px; }
+            .top-header .nav-icons i { font-size: 14px; }
+            .user-dropdown .username-display { font-size: 11px; padding: 2px 6px; }
+            .user-dropdown .user-avatar { width: 22px; height: 22px; }
+            #mobileMenuToggle { display: block; }
+            .news-grid { grid-template-columns: 1fr; gap: 12px; }
+            .page-title { font-size: 18px; }
+            .banner { padding: 10px 12px; }
+            .banner .text { font-size: 13px; }
+            .banner .btn-deposit { font-size: 12px; padding: 4px 14px; }
+        }
+        @media (max-width: 400px) {
+            .top-header .nav-icons i { font-size: 13px; }
+            .top-header .nav-icons .balance { font-size: 9px; padding: 2px 6px; }
+            .user-dropdown .username-display { font-size: 10px; padding: 2px 4px; }
+        }
+        @media (min-width: 769px) {
+            .sidebar-wrapper { transform: translateX(0) !important; }
+            .sidebar-overlay { display: none !important; }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- ===== AUTH PAGE ===== -->
+    <div id="authPage">
+        <div class="auth-container">
+            <div class="logo"><img src="https://rm1.ad/static/RUSSIANMARKET/fils/zhAG7DczoD.png" alt="Russian Market"></div>
+            <h1>RUSSIAN MARKET</h1>
+            <p class="subtitle">⛔ All domains from google are fake scams!</p>
+            <div class="tabs">
+                <button class="active" id="loginTab">Login</button>
+                <button id="signupTab">Sign Up</button>
+            </div>
+            <form id="loginForm" class="auth-form active">
+                <label>Username</label>
+                <input type="text" id="loginUsername" placeholder="Enter your username" required>
+                <label>Password</label>
+                <input type="password" id="loginPassword" placeholder="Enter your password" required>
+                <button type="submit" class="auth-btn">Login</button>
+                <div class="auth-error" id="loginError">❌ Invalid username or password.</div>
+            </form>
+            <form id="signupForm" class="auth-form">
+                <label>Username</label>
+                <input type="text" id="signupUsername" placeholder="Choose a username" required>
+                <label>Password</label>
+                <input type="password" id="signupPassword" placeholder="Choose a password" required>
+                <button type="submit" class="auth-btn">Create Account</button>
+                <div class="auth-error" id="signupError">❌ Username already exists.</div>
+                <div class="auth-success" id="signupSuccess">✅ Account created! Please login.</div>
+            </form>
+        </div>
+    </div>
+
+    <!-- ===== PIN POPUP ===== -->
+    <div class="pin-overlay" id="pinOverlay">
+        <div class="pin-box">
+            <h3><i class="fas fa-lock"></i> PIN Verification</h3>
+            <p id="pinMessage">Please enter your 4-digit PIN to continue.</p>
+            <input type="password" id="pinInput" maxlength="4" placeholder="• • • •" inputmode="numeric">
+            <div class="pin-error" id="pinError">❌ Invalid PIN. Please try again.</div>
+            <button class="pin-btn" id="pinSubmitBtn">Confirm</button>
+        </div>
+    </div>
+
+    <!-- ===== DASHBOARD ===== -->
+    <div id="dashboardPage">
+        
+        <!-- ===== FIXED TOP HEADER ===== -->
+        <div class="top-header">
+            <!-- LEFT: Menu + Logo + User (SINGLE USERNAME) -->
+            <div class="left-section">
+                <button id="mobileMenuToggle"><i class="fas fa-bars"></i></button>
+                <div class="logo"><img src="https://rm1.ad/static/RUSSIANMARKET/fils/zhAG7DczoD.png" alt="Russian Market"></div>
+                <div class="user-dropdown" id="userSection">
+                    <img class="user-avatar" src="https://rm1.ad/static/RUSSIANMARKET/fils/user.png" alt="User">
+                    <span class="username-display" id="headerUsername"><span id="headerUsernameText">User</span> <i class="fas fa-chevron-down" style="font-size:9px;"></i></span>
+                    <div class="dropdown-menu" id="userDropdownMenu">
+                        <a href="deposit.html"><i class="fas fa-coins"></i> Deposit</a>
+                        <a href="#" id="logoutLink"><i class="fas fa-sign-out-alt"></i> Logout</a>
+                    </div>
+                </div>
+            </div>
+
+            <!-- RIGHT: Icons (Reversed) -->
+            <div class="nav-icons">
+                <span class="balance" id="userBalance"><i class="fas fa-wallet"></i> $0.00</span>
+                <i class="fas fa-adjust" id="themeToggle" title="Toggle Theme"></i>
+                <i class="fas fa-briefcase" title="Activity Log"></i>
+                <i class="fas fa-shopping-cart" title="Cart"></i>
+                <i class="fas fa-envelope" title="Messages"></i>
+            </div>
+        </div>
+
+        <!-- ===== SIDEBAR (NO USERNAME HERE - ONLY LINKS) ===== -->
+        <div class="sidebar-overlay" id="sidebarOverlay"></div>
+        <div class="sidebar-wrapper" id="sidebar">
+            <ul>
+                <li class="active"><a href="index.html"><i class="fas fa-newspaper"></i> News</a></li>
+                <li><a href="cvv.html"><i class="fas fa-credit-card"></i> CVV</a></li>
+                <li><a href="logs.html"><i class="fas fa-history"></i> LOGS</a></li>
+                <li><a href="tools.html"><i class="fas fa-tools"></i> TOOLS</a></li>
+                <li><a href="#"><i class="fas fa-check-double"></i> CHECKERS</a></li>
+                <li><a href="#"><i class="fas fa-shopping-bag"></i> MY PURCHASES</a></li>
+                <li><a href="#"><i class="fas fa-headset"></i> SUPPORT</a></li>
+            </ul>
+        </div>
+
+        <!-- ===== MAIN CONTENT ===== -->
+        <div class="main-content">
+
+            <!-- BANNERS -->
+            <div class="banner banner-disabled" id="bannerDisabled">
+                <i class="fas fa-exclamation-triangle"></i>
+                <span class="text"><strong>⚠️ Account Not Activated!</strong> Please deposit <strong>$50</strong> to activate.</span>
+                <a href="deposit.html" class="btn-deposit">Deposit Now</a>
+            </div>
+            <div class="banner banner-limited" id="bannerLimited">
+                <i class="fas fa-eye-slash"></i>
+                <span class="text"><strong>🔍 Limited Access Mode!</strong> Only limited content available.</span>
+                <a href="deposit.html" class="btn-deposit">Deposit Now</a>
+            </div>
+            <div class="banner banner-locked" id="bannerLocked">
+                <i class="fas fa-lock"></i>
+                <span class="text"><strong>🔒 Account Locked!</strong> Access restricted.</span>
+                <a href="deposit.html" class="btn-deposit">Go to Deposit</a>
+            </div>
+
+            <h2 class="page-title">📰 News and Updates</h2>
+            <div class="news-grid" id="newsGrid"></div>
+            <div class="footer-links">
+                <a href="index.html">News</a>
+                <a href="#">FAQ</a>
+                <a href="#">Support</a>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // =============================================================
+        // 1. AUTH SYSTEM
+        // =============================================================
+        const authPage = document.getElementById('authPage');
+        const dashboardPage = document.getElementById('dashboardPage');
+        const loginTab = document.getElementById('loginTab');
+        const signupTab = document.getElementById('signupTab');
+        const loginForm = document.getElementById('loginForm');
+        const signupForm = document.getElementById('signupForm');
+        const loginError = document.getElementById('loginError');
+        const signupError = document.getElementById('signupError');
+        const signupSuccess = document.getElementById('signupSuccess');
+
+        const pinOverlay = document.getElementById('pinOverlay');
+        const pinInput = document.getElementById('pinInput');
+        const pinError = document.getElementById('pinError');
+        const pinMessage = document.getElementById('pinMessage');
+        const pinSubmitBtn = document.getElementById('pinSubmitBtn');
+
+        let pendingSignupUser = null;
+        let pendingLoginUser = null;
+
+        loginTab.addEventListener('click', function() {
+            loginTab.classList.add('active'); signupTab.classList.remove('active');
+            loginForm.classList.add('active'); signupForm.classList.remove('active');
+            loginError.style.display = 'none'; signupError.style.display = 'none'; signupSuccess.style.display = 'none';
+        });
+        signupTab.addEventListener('click', function() {
+            signupTab.classList.add('active'); loginTab.classList.remove('active');
+            signupForm.classList.add('active'); loginForm.classList.remove('active');
+            loginError.style.display = 'none'; signupError.style.display = 'none'; signupSuccess.style.display = 'none';
+        });
+
+        function getUsers() { const users = localStorage.getItem('russian_market_users'); return users ? JSON.parse(users) : []; }
+        function saveUsers(users) { localStorage.setItem('russian_market_users', JSON.stringify(users)); }
+        function getCurrentUser() { return localStorage.getItem('russian_market_current_user'); }
+        function setCurrentUser(username) { localStorage.setItem('russian_market_current_user', username); }
+        function clearCurrentUser() { localStorage.removeItem('russian_market_current_user'); }
+
+        function showPinPopup(message, callback) {
+            pinMessage.textContent = message || 'Please enter your 4-digit PIN to continue.';
+            pinInput.value = ''; pinError.style.display = 'none'; pinOverlay.classList.add('active'); pinInput.focus();
+            pinSubmitBtn.onclick = function() {
+                const enteredPin = pinInput.value.trim();
+                if (enteredPin.length === 4 && /^\d{4}$/.test(enteredPin)) {
+                    pinError.style.display = 'none'; pinOverlay.classList.remove('active'); callback(enteredPin);
+                } else {
+                    pinError.textContent = '❌ Please enter exactly 4 digits.';
+                    pinError.style.display = 'block'; pinInput.value = ''; pinInput.focus();
+                }
+            };
+            pinInput.onkeydown = function(e) { if (e.key === 'Enter') pinSubmitBtn.click(); };
+            pinInput.oninput = function() {
+                this.value = this.value.replace(/\D/g, '').slice(0, 4);
+                if (this.value.length === 4) pinSubmitBtn.click();
+            };
+        }
+        function hidePinPopup() { pinOverlay.classList.remove('active'); }
+
+        signupForm.addEventListener('submit', function(e) {
+            e.preventDefault();
+            const username = document.getElementById('signupUsername').value.trim();
+            const password = document.getElementById('signupPassword').value.trim();
+            if (!username || !password) { signupError.textContent = '❌ Please fill in all fields.'; signupError.style.display = 'block'; signupSuccess.style.display = 'none'; return; }
+            const users = getUsers();
+            if (users.find(u => u.username === username)) { signupError.textContent = '❌ Username already exists.'; signupError.style.display = 'block'; signupSuccess.style.display = 'none'; return; }
+            pendingSignupUser = { username, password };
+            signupError.style.display = 'none';
+            signupSuccess.textContent = '✅ Please set your 4-digit PIN.'; signupSuccess.style.display = 'block';
+            showPinPopup('🔐 Set your 4-digit PIN for extra security.', function(pin) {
+                const users = getUsers();
+                users.push({ username, password, pin, balance: 0, isBanned: false, isActive: false, activation_mode: 'disabled' });
+                saveUsers(users);
+                pendingSignupUser = null;
+                signupSuccess.textContent = '✅ Account created with PIN! Please login.';
+                signupSuccess.style.display = 'block';
+                document.getElementById('signupUsername').value = '';
+                document.getElementById('signupPassword').value = '';
+                loginTab.click();
+            });
+        });
+
+        loginForm.addEventListener('submit', function(e) {
+            e.preventDefault();
+            const username = document.getElementById('loginUsername').value.trim();
+            const password = document.getElementById('loginPassword').value.trim();
+            if (!username || !password) { loginError.textContent = '❌ Please fill in all fields.'; loginError.style.display = 'block'; return; }
+            const users = getUsers();
+            const user = users.find(u => u.username === username && u.password === password);
+            if (user) {
+                if (user.isBanned) { loginError.textContent = '❌ Your account has been banned.'; loginError.style.display = 'block'; return; }
+                loginError.style.display = 'none';
+                pendingLoginUser = user;
+                showPinPopup('🔐 Enter your 4-digit PIN to login.', function(enteredPin) {
+                    if (enteredPin === pendingLoginUser.pin) {
+                        pinError.style.display = 'none';
+                        setCurrentUser(username);
+                        window.location.reload();
+                        pendingLoginUser = null;
+                    } else {
+                        pinError.textContent = '❌ Invalid PIN. Please try again.';
+                        pinError.style.display = 'block';
+                        pinInput.value = '';
+                        pinInput.focus();
+                        setTimeout(() => {
+                            showPinPopup('🔐 Invalid PIN. Enter your 4-digit PIN.', function(newPin) {
+                                if (newPin === pendingLoginUser.pin) {
+                                    pinError.style.display = 'none';
+                                    setCurrentUser(username);
+                                    window.location.reload();
+                                    pendingLoginUser = null;
+                                } else {
+                                    pinError.textContent = '❌ Invalid PIN. Access denied.';
+                                    pinError.style.display = 'block';
+                                    pendingLoginUser = null;
+                                    setTimeout(() => hidePinPopup(), 1500);
+                                }
+                            });
+                        }, 300);
+                    }
+                });
+            } else {
+                loginError.textContent = '❌ Invalid username or password.';
+                loginError.style.display = 'block';
+            }
+        });
+
+        // =============================================================
+        // 2. DASHBOARD + MODES
+        // =============================================================
+        const bannerDisabled = document.getElementById('bannerDisabled');
+        const bannerLimited = document.getElementById('bannerLimited');
+        const bannerLocked = document.getElementById('bannerLocked');
+        const headerUsernameText = document.getElementById('headerUsernameText');
+
+        function showDashboard(username) {
+            authPage.style.display = 'none';
+            dashboardPage.style.display = 'block';
+            headerUsernameText.textContent = username;
+
+            const users = getUsers();
+            const user = users.find(u => u.username === username);
+            if (!user) return;
+
+            const mode = user.activation_mode || 'disabled';
+            const balance = user.balance || 0;
+            document.getElementById('userBalance').innerHTML = `<i class="fas fa-wallet"></i> $${balance.toFixed(2)}`;
+
+            bannerDisabled.classList.remove('show');
+            bannerLimited.classList.remove('show');
+            bannerLocked.classList.remove('show');
+
+            if (mode === 'locked') {
+                bannerLocked.classList.add('show');
+                document.querySelector('.news-grid').style.opacity = '0.4';
+                document.querySelector('.news-grid').style.pointerEvents = 'none';
+                document.querySelector('.footer-links').style.opacity = '0.4';
+                document.querySelector('.footer-links').style.pointerEvents = 'none';
+                loadNews();
+                return;
+            }
+            if (mode === 'disabled') {
+                bannerDisabled.classList.add('show');
+                loadNews();
+                return;
+            }
+            if (mode === 'limited') {
+                bannerLimited.classList.add('show');
+                loadNews();
+                return;
+            }
+            // active or default
+            loadNews();
+        }
+
+        // =============================================================
+        // 3. INIT
+        // =============================================================
+        const currentUser = getCurrentUser();
+        if (currentUser) {
+            const users = getUsers();
+            const user = users.find(u => u.username === currentUser);
+            if (user) {
+                if (user.isBanned) {
+                    clearCurrentUser();
+                    authPage.style.display = 'flex';
+                    dashboardPage.style.display = 'none';
+                    loginError.textContent = '❌ Your account has been banned.';
+                    loginError.style.display = 'block';
+                } else {
+                    showDashboard(currentUser);
+                }
+            } else {
+                clearCurrentUser();
+                authPage.style.display = 'flex';
+                dashboardPage.style.display = 'none';
+            }
+        }
+
+        // =============================================================
+        // 4. LOGOUT & DROPDOWN
+        // =============================================================
+        const dropdownMenu = document.getElementById('userDropdownMenu');
+        const userSection = document.getElementById('userSection');
+
+        userSection.addEventListener('click', function(e) {
+            e.stopPropagation();
+            dropdownMenu.classList.toggle('show');
+        });
+        document.addEventListener('click', function(e) {
+            if (!e.target.closest('.user-section')) {
+                dropdownMenu.classList.remove('show');
+            }
+        });
+
+        document.getElementById('logoutLink').addEventListener('click', function(e) {
+            e.preventDefault();
+            clearCurrentUser();
+            dropdownMenu.classList.remove('show');
+            closeSidebar();
+            dashboardPage.style.display = 'none';
+            authPage.style.display = 'flex';
+            document.getElementById('loginForm').reset();
+            document.getElementById('signupForm').reset();
+            loginError.style.display = 'none';
+            signupError.style.display = 'none';
+            signupSuccess.style.display = 'none';
+            loginTab.click();
+            window.location.reload();
+        });
+
+        // =============================================================
+        // 5. MOBILE SIDEBAR
+        // =============================================================
+        const sidebar = document.getElementById('sidebar');
+        const overlay = document.getElementById('sidebarOverlay');
+        const menuToggle = document.getElementById('mobileMenuToggle');
+
+        function openSidebar() { sidebar.classList.add('open'); overlay.classList.add('active'); document.body.style.overflow = 'hidden'; }
+        function closeSidebar() { sidebar.classList.remove('open'); overlay.classList.remove('active'); document.body.style.overflow = ''; }
+
+        menuToggle.addEventListener('click', function(e) {
+            e.stopPropagation();
+            sidebar.classList.contains('open') ? closeSidebar() : openSidebar();
+        });
+        overlay.addEventListener('click', closeSidebar);
+
+        // =============================================================
+        // 6. NEWS
+        // =============================================================
+        function getSavedNewsHTML() {
+            const stored = localStorage.getItem('russian_market_news');
+            let news = null;
+            if (stored) { try { news = JSON.parse(stored); } catch(e) { news = null; } }
+
+            if (!news) {
+                return `
+                    <div class="news-card">
+                        <div class="card-header">📌 Attention <span>05 Dec 2024</span></div>
+                        <p class="attention-text">⚠️ Please bookmark or save all links to always have access!</p>
+                        <div class="links-list">
+                            <div><span class="web-link">WEB:</span> https://russianmarket.to/</div>
+                            <div><span class="web-link">WEB:</span> https://rm1.cm/</div>
+                            <div><span class="web-link">WEB:</span> https://rm1.ad/</div>
+                            <div><span class="web-link">WEB:</span> https://russianmarket.com/</div>
+                            <br>
+                            <div><span class="tor-link">TOR:</span> http://russian76uguxb2w7v4zsv6ayhposdqyihm2mseq4qcvj5atoshnpqad.onion</div>
+                        </div>
+                    </div>
+                    <div class="news-card">
+                        <div class="card-header">📱 Telegram <span>01 Oct 2021</span></div>
+                        <p class="notice-text"><strong>Important notice:</strong> Our online store does not have a Telegram channel nor do we have any contacts on Telegram. Please be aware that any channels claiming to be affiliated with us are fraudulent. We would like to emphasize that the ONLY way to communicate with us is through this website's ticket system. Thank you for your understanding and cooperation.</p>
+                    </div>
+                `;
+            }
+
+            let linksHtml = '';
+            if (news.links1) {
+                linksHtml = news.links1.split('\n').map(line => {
+                    if (line.trim() === '') return '<br>';
+                    const isTor = line.toLowerCase().includes('tor');
+                    const className = isTor ? 'tor-link' : 'web-link';
+                    const colonIndex = line.indexOf(':');
+                    if (colonIndex === -1) return `<div>${line}</div>`;
+                    const prefix = line.substring(0, colonIndex + 1);
+                    const url = line.substring(colonIndex + 1).trim();
+                    if (!url) return `<div>${line}</div>`;
+                    return `<div><span class="${className}">${prefix}</span> ${url}</div>`;
+                }).join('');
+            }
+
+            return `
+                <div class="news-card">
+                    <div class="card-header">${news.title1 || '📌 Attention'} <span>${news.date1 || '05 Dec 2024'}</span></div>
+                    <p class="attention-text">${news.text1 || ''}</p>
+                    <div class="links-list">${linksHtml}</div>
+                </div>
+                <div class="news-card">
+                    <div class="card-header">${news.title2 || '📱 Telegram'} <span>${news.date2 || '01 Oct 2021'}</span></div>
+                    <p class="notice-text">${(news.text2 || '').replace(/\n/g, '<br>')}</p>
+                </div>
+            `;
+        }
+
+        function loadNews() { document.getElementById('newsGrid').innerHTML = getSavedNewsHTML(); }
+
+        // =============================================================
+        // 7. THEME TOGGLE
+        // =============================================================
+        let isDarkMode = true;
+        document.getElementById('themeToggle').addEventListener('click', function() {
+            const body = document.body;
+            const sidebar = document.querySelector('.sidebar-wrapper');
+            const mainContent = document.querySelector('.main-content');
+            const topHeader = document.querySelector('.top-header');
+            const cards = document.querySelectorAll('.news-card');
+            const linksList = document.querySelector('.links-list');
+            const dropdown = document.querySelector('.dropdown-menu');
+
+            if (isDarkMode) {
+                body.style.backgroundColor = '#f0f2f5';
+                body.style.color = '#1a1a1a';
+                sidebar.style.backgroundColor = '#ffffff';
+                sidebar.style.borderRightColor = '#ddd';
+                mainContent.style.backgroundColor = '#f0f2f5';
+                topHeader.style.backgroundColor = '#ffffff';
+                topHeader.style.borderBottomColor = '#ddd';
+                document.querySelector('.page-title').style.color = '#1a1a1a';
+                document.querySelector('.page-title').style.borderLeftColor = '#f0b90b';
+                cards.forEach(c => { c.style.backgroundColor = '#ffffff'; c.style.borderColor = '#ddd'; });
+                if (linksList) linksList.style.backgroundColor = '#f0f0f0';
+                if (dropdown) dropdown.style.backgroundColor = '#ffffff';
+                document.querySelectorAll('.sidebar-wrapper ul li').forEach(li => li.style.color = '#333');
+                document.querySelectorAll('.sidebar-wrapper ul li:hover, .sidebar-wrapper ul li.active').forEach(li => { li.style.backgroundColor = '#e0e0e0'; li.style.color = '#000'; });
+                document.querySelector('.footer-links').style.borderTopColor = '#ddd';
+                document.querySelector('.user-dropdown .username-display').style.backgroundColor = '#e0e0e0';
+                document.querySelector('.user-dropdown .username-display').style.borderColor = '#ccc';
+                document.querySelector('.user-dropdown .user-avatar').style.borderColor = '#ccc';
+                this.style.color = '#f0b90b';
+                isDarkMode = false;
+            } else {
+                body.style.backgroundColor = '#0a0d10';
+                body.style.color = '#d1d5db';
+                sidebar.style.backgroundColor = '#131a1f';
+                sidebar.style.borderRightColor = '#2a333a';
+                mainContent.style.backgroundColor = '#0f1419';
+                topHeader.style.backgroundColor = '#131a1f';
+                topHeader.style.borderBottomColor = '#2a333a';
+                document.querySelector('.page-title').style.color = '#f0b90b';
+                document.querySelector('.page-title').style.borderLeftColor = '#f0b90b';
+                cards.forEach(c => { c.style.backgroundColor = '#131a1f'; c.style.borderColor = '#2a333a'; });
+                if (linksList) linksList.style.backgroundColor = '#1a242c';
+                if (dropdown) dropdown.style.backgroundColor = '#131a1f';
+                document.querySelectorAll('.sidebar-wrapper ul li').forEach(li => li.style.color = '#9aa6b2');
+                document.querySelectorAll('.sidebar-wrapper ul li:hover, .sidebar-wrapper ul li.active').forEach(li => { li.style.backgroundColor = '#1f2a33'; li.style.color = '#ffffff'; });
+                document.querySelector('.footer-links').style.borderTopColor = '#2a333a';
+                document.querySelector('.user-dropdown .username-display').style.backgroundColor = '#1e2830';
+                document.querySelector('.user-dropdown .username-display').style.borderColor = '#2a333a';
+                document.querySelector('.user-dropdown .user-avatar').style.borderColor = '#2a333a';
+                this.style.color = '#9aa6b2';
+                isDarkMode = true;
+            }
+        });
+
+        console.log('✅ Index page loaded with fixed header, single username, and reversed icons.');
+    </script>
+</body>
+</html>
