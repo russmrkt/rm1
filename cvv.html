@@ -713,4 +713,102 @@
             if (isDisabledMode || isLockedMode) { alert('Account not active.'); return; }
             const allData = await getCvvData();
             const item = allData.find(d => d.id === id);
-            if (!item || item.isSold) { alert('Sold.');
+            if (!item || item.isSold) { alert('Sold.'); return; }
+            
+            const user = await getUserByUsername(savedUsername);
+            if (!user || user.balance < item.price) {
+                alert(`❌ Insufficient balance! Need $${item.price.toFixed(2)}.`);
+                return;
+            }
+            if (confirm(`Buy this CVV for $${item.price.toFixed(2)}?`)) {
+                const newBalance = user.balance - item.price;
+                await updateUser(user.id, { balance: newBalance });
+                await updateCvvItem(item.id, { isSold: true });
+                
+                const modal = document.getElementById('buyModal');
+                const details = document.getElementById('modalDetails');
+                details.innerHTML = `
+                    <div class="detail-row"><span class="label">Type</span><span class="value">${item.type || 'N/A'}</span></div>
+                    <div class="detail-row"><span class="label">BIN</span><span class="value">${item.bin || 'N/A'}</span></div>
+                    <div class="detail-row"><span class="label">Bank</span><span class="value">${item.bank || 'N/A'}</span></div>
+                    <div class="detail-row"><span class="label">Class</span><span class="value">${item.class || 'N/A'}</span></div>
+                    <div class="detail-row"><span class="label">Price</span><span class="value" style="color:#f0b90b;">$${(item.price || 0).toFixed(2)}</span></div>
+                    <div class="detail-row"><span class="label">Status</span><span class="value" style="color:#2ecc71;">✅ Purchased!</span></div>
+                `;
+                modal.classList.add('active');
+                await applyFilters();
+                const updatedUser = await getUserByUsername(savedUsername);
+                document.getElementById('userBalanceDisplay').innerHTML = `<i class="fas fa-wallet"></i> $${(updatedUser.balance || 0).toFixed(2)}`;
+                document.getElementById('userBalance').innerHTML = `<i class="fas fa-wallet"></i> $${(updatedUser.balance || 0).toFixed(2)}`;
+            }
+        }
+
+        function closeModal() { document.getElementById('buyModal').classList.remove('active'); }
+        document.getElementById('buyModal').addEventListener('click', function(e) { if (e.target === this) closeModal(); });
+
+        function toggleAllCheckboxes() { const checked = document.getElementById('selectAll').checked; document.querySelectorAll('.row-checkbox').forEach(cb => cb.checked = checked); }
+
+        // =============================================================
+        // 7. POPULATE FILTER DROPDOWNS
+        // =============================================================
+        async function populateFilterDropdowns() {
+            const data = await getCvvData();
+            const banks = [...new Set(data.map(d => d.bank).filter(Boolean))];
+            const levels = [...new Set(data.map(d => d.level).filter(Boolean))];
+            const classes = [...new Set(data.map(d => d.class).filter(Boolean))];
+            const vendors = [...new Set(data.map(d => d.vendor).filter(Boolean))];
+            const bankSelect = document.getElementById('filterBank');
+            banks.forEach(b => { const opt = document.createElement('option'); opt.value = b; opt.textContent = b; bankSelect.appendChild(opt); });
+            const levelSelect = document.getElementById('filterLevel');
+            levels.forEach(l => { const opt = document.createElement('option'); opt.value = l; opt.textContent = l; levelSelect.appendChild(opt); });
+            const classSelect = document.getElementById('filterClass');
+            classes.forEach(c => { const opt = document.createElement('option'); opt.value = c; opt.textContent = c; classSelect.appendChild(opt); });
+            const vendorSelect = document.getElementById('filterVendor');
+            vendors.forEach(v => { const opt = document.createElement('option'); opt.value = v; opt.textContent = v; vendorSelect.appendChild(opt); });
+        }
+
+        // =============================================================
+        // 8. INIT
+        // =============================================================
+        async function initPage() {
+            const user = await userLoaded;
+            if (!user) return;
+
+            const mode = user.activation_mode || 'disabled';
+            isLimitedMode = mode === 'limited';
+            isLockedMode = mode === 'locked';
+            isDisabledMode = mode === 'disabled';
+
+            if (isLockedMode) {
+                bannerLocked.classList.add('show');
+                document.querySelector('.filter-section').style.opacity = '0.3';
+                document.querySelector('.filter-section').style.pointerEvents = 'none';
+                document.querySelector('.table-wrapper').style.opacity = '0.3';
+                document.querySelector('.table-wrapper').style.pointerEvents = 'none';
+                document.querySelector('.pagination').style.opacity = '0.3';
+                document.querySelector('.pagination').style.pointerEvents = 'none';
+                document.getElementById('cvvTableBody').innerHTML = `<tr><td colspan="16" class="empty-state"><i class="fas fa-lock" style="font-size:40px; color:#8e44ad;"></i><p style="color:#8e44ad;">Account locked.</p></td></tr>`;
+            } else if (isDisabledMode) {
+                bannerDisabled.classList.add('show');
+                document.querySelector('.filter-section').style.opacity = '0.3';
+                document.querySelector('.filter-section').style.pointerEvents = 'none';
+                document.querySelector('.table-wrapper').style.opacity = '0.3';
+                document.querySelector('.table-wrapper').style.pointerEvents = 'none';
+                document.querySelector('.pagination').style.opacity = '0.3';
+                document.querySelector('.pagination').style.pointerEvents = 'none';
+                document.getElementById('cvvTableBody').innerHTML = `<tr><td colspan="16" class="empty-state"><i class="fas fa-exclamation-triangle" style="font-size:40px; color:#e74c3c;"></i><p style="color:#e74c3c;">Account not activated.</p></td></tr>`;
+            } else if (isLimitedMode) {
+                bannerLimited.classList.add('show');
+            }
+
+            await populateFilterDropdowns();
+            if (!isDisabledMode && !isLockedMode) {
+                await applyFilters();
+            }
+        }
+
+        initPage();
+        console.log('✅ CVV page loaded with Firebase.');
+    </script>
+</body>
+</html>
