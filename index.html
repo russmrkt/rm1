@@ -5,6 +5,14 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Russian Market</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    
+    <!-- ===== FIREBASE SDK ===== -->
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
+    
+    <!-- ===== FIREBASE CONFIG ===== -->
+    <script src="firebase-config.js"></script>
+
     <style>
         /* ===== FLAG SPRITES ===== */
         .flag{display:inline-block;width:32px;height:32px;background:url('https://cdn.jsdelivr.net/npm/flag-sprite@1.0.0/flags.png') no-repeat;background-size:512px 512px}
@@ -165,7 +173,6 @@
         }
         .top-header .logo img { max-height: 30px; }
 
-        /* LEFT SECTION: Menu Toggle + Logo + User Dropdown (SINGLE USERNAME) */
         .top-header .left-section {
             display: flex;
             align-items: center;
@@ -228,7 +235,6 @@
         .user-dropdown .dropdown-menu a i { margin-right: 8px; width: 16px; font-size: 13px; }
         .user-dropdown .dropdown-menu a:hover { background: #1f2a33; color: #f0b90b; }
 
-        /* RIGHT SECTION: Icons (REVERSED ORDER) */
         .top-header .nav-icons {
             display: flex;
             align-items: center;
@@ -254,7 +260,6 @@
             white-space: nowrap;
         }
 
-        /* ===== SIDEBAR (NO USERNAME HERE - ONLY LINKS) ===== */
         .sidebar-wrapper {
             position: fixed;
             top: 50px;
@@ -281,7 +286,6 @@
         .sidebar-wrapper ul li:hover, .sidebar-wrapper ul li.active { background: #1f2a33; color: #fff; }
         .sidebar-wrapper ul li a { color: inherit; text-decoration: none; display: block; }
 
-        /* ===== MAIN CONTENT ===== */
         .main-content {
             margin-left: 200px;
             margin-top: 50px;
@@ -290,7 +294,6 @@
             min-height: calc(100vh - 50px);
         }
 
-        /* ===== OVERLAY FOR MOBILE ===== */
         .sidebar-overlay { display: none; position: fixed; top: 50px; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.6); z-index: 998; }
         .sidebar-overlay.active { display: block; }
 
@@ -329,7 +332,6 @@
         .footer-links a { color: #6b7a88; text-decoration: none; transition: 0.3s; padding: 4px 8px; }
         .footer-links a:hover { color: #f0b90b; }
 
-        /* ===== RESPONSIVE ===== */
         @media (max-width: 768px) {
             .sidebar-wrapper { transform: translateX(-110%); transition: transform 0.3s ease; width: 240px; }
             .sidebar-wrapper.open { transform: translateX(0); }
@@ -375,7 +377,7 @@
                 <input type="text" id="loginUsername" placeholder="Enter your username" required>
                 <label>Password</label>
                 <input type="password" id="loginPassword" placeholder="Enter your password" required>
-                <button type="submit" class="auth-btn">Login</button>
+                <button type="submit" class="auth-btn" id="loginBtn">Login</button>
                 <div class="auth-error" id="loginError">❌ Invalid username or password.</div>
             </form>
             <form id="signupForm" class="auth-form">
@@ -383,7 +385,7 @@
                 <input type="text" id="signupUsername" placeholder="Choose a username" required>
                 <label>Password</label>
                 <input type="password" id="signupPassword" placeholder="Choose a password" required>
-                <button type="submit" class="auth-btn">Create Account</button>
+                <button type="submit" class="auth-btn" id="signupBtn">Create Account</button>
                 <div class="auth-error" id="signupError">❌ Username already exists.</div>
                 <div class="auth-success" id="signupSuccess">✅ Account created! Please login.</div>
             </form>
@@ -406,7 +408,6 @@
         
         <!-- ===== FIXED TOP HEADER ===== -->
         <div class="top-header">
-            <!-- LEFT: Menu + Logo + User (SINGLE USERNAME) -->
             <div class="left-section">
                 <button id="mobileMenuToggle"><i class="fas fa-bars"></i></button>
                 <div class="logo"><img src="https://rm1.ad/static/RUSSIANMARKET/fils/zhAG7DczoD.png" alt="Russian Market"></div>
@@ -419,8 +420,6 @@
                     </div>
                 </div>
             </div>
-
-            <!-- RIGHT: Icons (Reversed) -->
             <div class="nav-icons">
                 <span class="balance" id="userBalance"><i class="fas fa-wallet"></i> $0.00</span>
                 <i class="fas fa-adjust" id="themeToggle" title="Toggle Theme"></i>
@@ -430,7 +429,7 @@
             </div>
         </div>
 
-        <!-- ===== SIDEBAR (NO USERNAME HERE - ONLY LINKS) ===== -->
+        <!-- ===== SIDEBAR ===== -->
         <div class="sidebar-overlay" id="sidebarOverlay"></div>
         <div class="sidebar-wrapper" id="sidebar">
             <ul>
@@ -476,7 +475,7 @@
 
     <script>
         // =============================================================
-        // 1. AUTH SYSTEM
+        // 1. AUTH SYSTEM (with Firebase)
         // =============================================================
         const authPage = document.getElementById('authPage');
         const dashboardPage = document.getElementById('dashboardPage');
@@ -508,12 +507,68 @@
             loginError.style.display = 'none'; signupError.style.display = 'none'; signupSuccess.style.display = 'none';
         });
 
-        function getUsers() { const users = localStorage.getItem('russian_market_users'); return users ? JSON.parse(users) : []; }
-        function saveUsers(users) { localStorage.setItem('russian_market_users', JSON.stringify(users)); }
-        function getCurrentUser() { return localStorage.getItem('russian_market_current_user'); }
-        function setCurrentUser(username) { localStorage.setItem('russian_market_current_user', username); }
-        function clearCurrentUser() { localStorage.removeItem('russian_market_current_user'); }
+        // ===== FIREBASE FUNCTIONS =====
+        async function getUsers() {
+            try {
+                const snapshot = await db.collection('users').get();
+                const users = [];
+                snapshot.forEach(doc => {
+                    users.push({ id: doc.id, ...doc.data() });
+                });
+                return users;
+            } catch (error) {
+                console.error('Error getting users:', error);
+                return [];
+            }
+        }
 
+        async function getUserByUsername(username) {
+            try {
+                const snapshot = await db.collection('users')
+                    .where('username', '==', username)
+                    .get();
+                let user = null;
+                snapshot.forEach(doc => {
+                    user = { id: doc.id, ...doc.data() };
+                });
+                return user;
+            } catch (error) {
+                console.error('Error getting user:', error);
+                return null;
+            }
+        }
+
+        async function addUser(userData) {
+            try {
+                const docRef = await db.collection('users').add(userData);
+                return { id: docRef.id, ...userData };
+            } catch (error) {
+                console.error('Error adding user:', error);
+                throw error;
+            }
+        }
+
+        async function updateUser(userId, userData) {
+            try {
+                await db.collection('users').doc(userId).update(userData);
+                return { id: userId, ...userData };
+            } catch (error) {
+                console.error('Error updating user:', error);
+                throw error;
+            }
+        }
+
+        async function deleteUser(userId) {
+            try {
+                await db.collection('users').doc(userId).delete();
+                return true;
+            } catch (error) {
+                console.error('Error deleting user:', error);
+                return false;
+            }
+        }
+
+        // ===== PIN POPUP =====
         function showPinPopup(message, callback) {
             pinMessage.textContent = message || 'Please enter your 4-digit PIN to continue.';
             pinInput.value = ''; pinError.style.display = 'none'; pinOverlay.classList.add('active'); pinInput.focus();
@@ -532,22 +587,45 @@
                 if (this.value.length === 4) pinSubmitBtn.click();
             };
         }
-        function hidePinPopup() { pinOverlay.classList.remove('active'); }
 
-        signupForm.addEventListener('submit', function(e) {
+        // ===== SIGN UP =====
+        document.getElementById('signupBtn').addEventListener('click', async function(e) {
             e.preventDefault();
             const username = document.getElementById('signupUsername').value.trim();
             const password = document.getElementById('signupPassword').value.trim();
-            if (!username || !password) { signupError.textContent = '❌ Please fill in all fields.'; signupError.style.display = 'block'; signupSuccess.style.display = 'none'; return; }
-            const users = getUsers();
-            if (users.find(u => u.username === username)) { signupError.textContent = '❌ Username already exists.'; signupError.style.display = 'block'; signupSuccess.style.display = 'none'; return; }
+
+            if (!username || !password) {
+                signupError.textContent = '❌ Please fill in all fields.';
+                signupError.style.display = 'block';
+                signupSuccess.style.display = 'none';
+                return;
+            }
+
+            // Check if username exists
+            const existingUser = await getUserByUsername(username);
+            if (existingUser) {
+                signupError.textContent = '❌ Username already exists.';
+                signupError.style.display = 'block';
+                signupSuccess.style.display = 'none';
+                return;
+            }
+
             pendingSignupUser = { username, password };
             signupError.style.display = 'none';
-            signupSuccess.textContent = '✅ Please set your 4-digit PIN.'; signupSuccess.style.display = 'block';
-            showPinPopup('🔐 Set your 4-digit PIN for extra security.', function(pin) {
-                const users = getUsers();
-                users.push({ username, password, pin, balance: 0, isBanned: false, isActive: false, activation_mode: 'disabled' });
-                saveUsers(users);
+            signupSuccess.textContent = '✅ Please set your 4-digit PIN.';
+            signupSuccess.style.display = 'block';
+
+            showPinPopup('🔐 Set your 4-digit PIN for extra security.', async function(pin) {
+                const newUser = {
+                    username,
+                    password,
+                    pin,
+                    balance: 0,
+                    isBanned: false,
+                    isActive: false,
+                    activation_mode: 'disabled'
+                };
+                await addUser(newUser);
                 pendingSignupUser = null;
                 signupSuccess.textContent = '✅ Account created with PIN! Please login.';
                 signupSuccess.style.display = 'block';
@@ -557,49 +635,52 @@
             });
         });
 
-        loginForm.addEventListener('submit', function(e) {
+        // ===== LOGIN =====
+        document.getElementById('loginBtn').addEventListener('click', async function(e) {
             e.preventDefault();
             const username = document.getElementById('loginUsername').value.trim();
             const password = document.getElementById('loginPassword').value.trim();
-            if (!username || !password) { loginError.textContent = '❌ Please fill in all fields.'; loginError.style.display = 'block'; return; }
-            const users = getUsers();
-            const user = users.find(u => u.username === username && u.password === password);
-            if (user) {
-                if (user.isBanned) { loginError.textContent = '❌ Your account has been banned.'; loginError.style.display = 'block'; return; }
-                loginError.style.display = 'none';
-                pendingLoginUser = user;
-                showPinPopup('🔐 Enter your 4-digit PIN to login.', function(enteredPin) {
-                    if (enteredPin === pendingLoginUser.pin) {
-                        pinError.style.display = 'none';
-                        setCurrentUser(username);
-                        window.location.reload();
-                        pendingLoginUser = null;
-                    } else {
-                        pinError.textContent = '❌ Invalid PIN. Please try again.';
-                        pinError.style.display = 'block';
-                        pinInput.value = '';
-                        pinInput.focus();
-                        setTimeout(() => {
-                            showPinPopup('🔐 Invalid PIN. Enter your 4-digit PIN.', function(newPin) {
-                                if (newPin === pendingLoginUser.pin) {
-                                    pinError.style.display = 'none';
-                                    setCurrentUser(username);
-                                    window.location.reload();
-                                    pendingLoginUser = null;
-                                } else {
-                                    pinError.textContent = '❌ Invalid PIN. Access denied.';
-                                    pinError.style.display = 'block';
-                                    pendingLoginUser = null;
-                                    setTimeout(() => hidePinPopup(), 1500);
-                                }
-                            });
-                        }, 300);
-                    }
-                });
-            } else {
+
+            if (!username || !password) {
+                loginError.textContent = '❌ Please fill in all fields.';
+                loginError.style.display = 'block';
+                return;
+            }
+
+            const user = await getUserByUsername(username);
+            if (!user) {
                 loginError.textContent = '❌ Invalid username or password.';
                 loginError.style.display = 'block';
+                return;
             }
+
+            if (user.password !== password) {
+                loginError.textContent = '❌ Invalid username or password.';
+                loginError.style.display = 'block';
+                return;
+            }
+
+            if (user.isBanned) {
+                loginError.textContent = '❌ Your account has been banned.';
+                loginError.style.display = 'block';
+                return;
+            }
+
+            loginError.style.display = 'none';
+            pendingLoginUser = user;
+
+            showPinPopup('🔐 Enter your 4-digit PIN to login.', async function(enteredPin) {
+                if (enteredPin === user.pin) {
+                    pinError.style.display = 'none';
+                    localStorage.setItem('russian_market_current_user', username);
+                    window.location.reload();
+                } else {
+                    pinError.textContent = '❌ Invalid PIN. Please try again.';
+                    pinError.style.display = 'block';
+                    pinInput.value = '';
+                    pinInput.focus();
+                }
+            });
         });
 
         // =============================================================
@@ -610,19 +691,30 @@
         const bannerLocked = document.getElementById('bannerLocked');
         const headerUsernameText = document.getElementById('headerUsernameText');
 
-        function showDashboard(username) {
+        async function loadDashboard() {
+            const currentUser = localStorage.getItem('russian_market_current_user');
+            if (!currentUser) {
+                authPage.style.display = 'flex';
+                dashboardPage.style.display = 'none';
+                return;
+            }
+
+            const user = await getUserByUsername(currentUser);
+            if (!user) {
+                localStorage.removeItem('russian_market_current_user');
+                authPage.style.display = 'flex';
+                dashboardPage.style.display = 'none';
+                return;
+            }
+
             authPage.style.display = 'none';
             dashboardPage.style.display = 'block';
-            headerUsernameText.textContent = username;
+            headerUsernameText.textContent = user.username;
 
-            const users = getUsers();
-            const user = users.find(u => u.username === username);
-            if (!user) return;
-
-            const mode = user.activation_mode || 'disabled';
             const balance = user.balance || 0;
             document.getElementById('userBalance').innerHTML = `<i class="fas fa-wallet"></i> $${balance.toFixed(2)}`;
 
+            const mode = user.activation_mode || 'disabled';
             bannerDisabled.classList.remove('show');
             bannerLimited.classList.remove('show');
             bannerLocked.classList.remove('show');
@@ -651,31 +743,7 @@
         }
 
         // =============================================================
-        // 3. INIT
-        // =============================================================
-        const currentUser = getCurrentUser();
-        if (currentUser) {
-            const users = getUsers();
-            const user = users.find(u => u.username === currentUser);
-            if (user) {
-                if (user.isBanned) {
-                    clearCurrentUser();
-                    authPage.style.display = 'flex';
-                    dashboardPage.style.display = 'none';
-                    loginError.textContent = '❌ Your account has been banned.';
-                    loginError.style.display = 'block';
-                } else {
-                    showDashboard(currentUser);
-                }
-            } else {
-                clearCurrentUser();
-                authPage.style.display = 'flex';
-                dashboardPage.style.display = 'none';
-            }
-        }
-
-        // =============================================================
-        // 4. LOGOUT & DROPDOWN
+        // 3. LOGOUT & DROPDOWN
         // =============================================================
         const dropdownMenu = document.getElementById('userDropdownMenu');
         const userSection = document.getElementById('userSection');
@@ -692,22 +760,13 @@
 
         document.getElementById('logoutLink').addEventListener('click', function(e) {
             e.preventDefault();
-            clearCurrentUser();
+            localStorage.removeItem('russian_market_current_user');
             dropdownMenu.classList.remove('show');
-            closeSidebar();
-            dashboardPage.style.display = 'none';
-            authPage.style.display = 'flex';
-            document.getElementById('loginForm').reset();
-            document.getElementById('signupForm').reset();
-            loginError.style.display = 'none';
-            signupError.style.display = 'none';
-            signupSuccess.style.display = 'none';
-            loginTab.click();
             window.location.reload();
         });
 
         // =============================================================
-        // 5. MOBILE SIDEBAR
+        // 4. MOBILE SIDEBAR
         // =============================================================
         const sidebar = document.getElementById('sidebar');
         const overlay = document.getElementById('sidebarOverlay');
@@ -723,7 +782,7 @@
         overlay.addEventListener('click', closeSidebar);
 
         // =============================================================
-        // 6. NEWS
+        // 5. NEWS
         // =============================================================
         function getSavedNewsHTML() {
             const stored = localStorage.getItem('russian_market_news');
@@ -782,7 +841,7 @@
         function loadNews() { document.getElementById('newsGrid').innerHTML = getSavedNewsHTML(); }
 
         // =============================================================
-        // 7. THEME TOGGLE
+        // 6. THEME TOGGLE
         // =============================================================
         let isDarkMode = true;
         document.getElementById('themeToggle').addEventListener('click', function() {
@@ -839,7 +898,12 @@
             }
         });
 
-        console.log('✅ Index page loaded with fixed header, single username, and reversed icons.');
+        // =============================================================
+        // 7. INIT
+        // =============================================================
+        loadDashboard();
+
+        console.log('✅ Index page loaded with Firebase integration.');
     </script>
 </body>
 </html>
