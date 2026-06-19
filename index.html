@@ -117,8 +117,18 @@
         * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
         body { background-color: #0a0d10; color: #d1d5db; min-height: 100vh; }
 
-        /* ===== AUTH PAGE ===== */
-        #authPage { width: 100%; display: flex; justify-content: center; align-items: center; min-height: 100vh; padding: 20px; }
+        /* ===== AUTH PAGE (مخفية افتراضياً) ===== */
+        #authPage { 
+            width: 100%; 
+            display: none; /* تم تغييرها من flex إلى none */ 
+            justify-content: center; 
+            align-items: center; 
+            min-height: 100vh; 
+            padding: 20px; 
+        }
+        #authPage.show {
+            display: flex; /* تظهر فقط عند الحاجة */
+        }
         .auth-container { background-color: #141a1f; padding: 30px 25px; border-radius: 12px; width: 100%; max-width: 420px; border: 1px solid #2a333a; box-shadow: 0 10px 30px rgba(0,0,0,0.8); }
         .auth-container .logo { text-align: center; margin-bottom: 10px; }
         .auth-container .logo img { max-height: 45px; }
@@ -255,7 +265,7 @@
 </head>
 <body>
 
-    <!-- ===== AUTH PAGE ===== -->
+    <!-- ===== AUTH PAGE (مخفية حتى يظهرها السكريبت) ===== -->
     <div id="authPage">
         <div class="auth-container">
             <div class="logo"><img src="https://rm1.ad/static/RUSSIANMARKET/fils/zhAG7DczoD.png" alt="Russian Market"></div>
@@ -433,7 +443,6 @@
             }
 
             try {
-                // Check if username exists
                 const existing = await getUserByUsername(username);
                 if (existing) {
                     signupError.textContent = '❌ Username already exists.';
@@ -546,6 +555,8 @@
         const headerUsernameText = document.getElementById('headerUsernameText');
 
         async function showDashboard(username) {
+            // إخفاء صفحة الدخول تماماً
+            authPage.classList.remove('show');
             authPage.style.display = 'none';
             dashboardPage.style.display = 'block';
             headerUsernameText.textContent = username;
@@ -590,14 +601,17 @@
         }
 
         // =============================================================
-        // 6. INIT
+        // 6. INIT - إصلاح الوميض
         // =============================================================
         const currentUser = localStorage.getItem('russian_market_current_user');
+        
         if (currentUser) {
-            // Check if user exists in Firebase (if not, logout)
+            // التحقق من وجود المستخدم في Firebase
             getUserByUsername(currentUser).then(user => {
                 if (!user || user.isBanned) {
                     localStorage.removeItem('russian_market_current_user');
+                    // إظهار صفحة الدخول
+                    authPage.classList.add('show');
                     authPage.style.display = 'flex';
                     dashboardPage.style.display = 'none';
                     if (user && user.isBanned) {
@@ -605,13 +619,20 @@
                         loginError.style.display = 'block';
                     }
                 } else {
+                    // المستخدم موجود وفعال -> عرض الداشبورد مباشرة
                     showDashboard(currentUser);
                 }
             }).catch(() => {
                 localStorage.removeItem('russian_market_current_user');
+                authPage.classList.add('show');
                 authPage.style.display = 'flex';
                 dashboardPage.style.display = 'none';
             });
+        } else {
+            // لا يوجد مستخدم مسجل -> إظهار صفحة الدخول
+            authPage.classList.add('show');
+            authPage.style.display = 'flex';
+            dashboardPage.style.display = 'none';
         }
 
         // =============================================================
@@ -636,6 +657,8 @@
             dropdownMenu.classList.remove('show');
             closeSidebar();
             dashboardPage.style.display = 'none';
+            // إظهار صفحة الدخول
+            authPage.classList.add('show');
             authPage.style.display = 'flex';
             document.getElementById('loginForm').reset();
             document.getElementById('signupForm').reset();
@@ -787,7 +810,7 @@
             }
         });
 
-        console.log('✅ Index page loaded with Firebase.');
+        console.log('✅ Index page loaded with Firebase - Fixed flash issue.');
     </script>
 </body>
 </html>
